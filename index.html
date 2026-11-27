@@ -29,7 +29,7 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding-bottom: 88px;
+      padding-bottom: 90px;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -333,14 +333,6 @@
       padding: 18px 8px;
     }
 
-    .tab-view {
-      display: none;
-    }
-
-    .tab-view.active {
-      display: block;
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -352,6 +344,7 @@
       justify-content: space-around;
       padding: 8px 4px;
       overflow-x: auto;
+      z-index: 50;
     }
 
     .nav-item {
@@ -381,26 +374,26 @@
     </div>
 
     <!-- TODAY -->
-    <section id="tab-today" class="tab-view active">
+    <section id="sec-today">
       <div class="greeting">
         <h1>Today</h1>
         <p>Your daily tasks, schedule, habits, and focus in one calm space.</p>
       </div>
 
       <div class="metrics">
-        <button type="button" class="metric" data-go="tasks">
+        <button type="button" class="metric" onclick="showSection('tasks')">
           <div class="metric-val" id="mTasks">0</div>
           <div class="metric-lbl">Pending Tasks</div>
         </button>
-        <button type="button" class="metric" data-go="schedule">
+        <button type="button" class="metric" onclick="showSection('schedule')">
           <div class="metric-val" id="mSchedule">0</div>
           <div class="metric-lbl">Scheduled Today</div>
         </button>
-        <button type="button" class="metric" data-go="habits">
+        <button type="button" class="metric" onclick="showSection('habits')">
           <div class="metric-val" id="mHabits">0/0</div>
           <div class="metric-lbl">Habits Done</div>
         </button>
-        <button type="button" class="metric" data-go="notes">
+        <button type="button" class="metric" onclick="showSection('notes')">
           <div class="metric-val" id="mNotes">0</div>
           <div class="metric-lbl">Saved Notes</div>
         </button>
@@ -409,7 +402,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Today's Schedule</div>
-          <button type="button" class="link-btn" data-go="schedule">Open Calendar</button>
+          <button type="button" class="link-btn" onclick="showSection('schedule')">Open Calendar</button>
         </div>
         <div id="todaySchedule"></div>
       </div>
@@ -417,14 +410,14 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Up Next</div>
-          <button type="button" class="link-btn" data-go="tasks">All Tasks</button>
+          <button type="button" class="link-btn" onclick="showSection('tasks')">All Tasks</button>
         </div>
         <div id="todayTasks"></div>
       </div>
     </section>
 
     <!-- CALENDAR & SCHEDULING -->
-    <section id="tab-schedule" class="tab-view">
+    <section id="sec-schedule" style="display:none;">
       <div class="greeting">
         <h1>Calendar & Schedule</h1>
         <p>Pick a date and plan your time slots clearly.</p>
@@ -432,49 +425,49 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Selected Date</div>
-          <input id="calDate" type="date" />
+          <input id="calDate" type="date" onchange="drawApp()" />
         </div>
         <div class="input-group">
           <input id="schedTime" type="time" value="09:00" />
-          <input id="schedTitle" type="text" placeholder="What is scheduled?" />
-          <button type="button" class="btn" id="addSchedBtn">Schedule</button>
+          <input id="schedTitle" type="text" placeholder="What is scheduled?" onkeydown="if(event.key==='Enter') addSched()" />
+          <button type="button" class="btn" onclick="addSched()">Schedule</button>
         </div>
         <div id="scheduleList"></div>
       </div>
     </section>
 
     <!-- TASKS -->
-    <section id="tab-tasks" class="tab-view">
+    <section id="sec-tasks" style="display:none;">
       <div class="greeting">
         <h1>Tasks</h1>
         <p>Keep track of what matters today.</p>
       </div>
       <div class="panel">
         <div class="input-group">
-          <input id="taskField" type="text" placeholder="What needs to get done?" />
-          <button type="button" class="btn" id="addTaskBtn">Add</button>
+          <input id="taskField" type="text" placeholder="What needs to get done?" onkeydown="if(event.key==='Enter') addTsk()" />
+          <button type="button" class="btn" onclick="addTsk()">Add</button>
         </div>
         <div id="allTasks"></div>
       </div>
     </section>
 
     <!-- HABITS -->
-    <section id="tab-habits" class="tab-view">
+    <section id="sec-habits" style="display:none;">
       <div class="greeting">
         <h1>Habits</h1>
         <p>Build steady daily consistency.</p>
       </div>
       <div class="panel">
         <div class="input-group">
-          <input id="habitField" type="text" placeholder="Add a daily habit..." />
-          <button type="button" class="btn" id="addHabitBtn">Add</button>
+          <input id="habitField" type="text" placeholder="Add a daily habit..." onkeydown="if(event.key==='Enter') addHab()" />
+          <button type="button" class="btn" onclick="addHab()">Add</button>
         </div>
         <div id="allHabits"></div>
       </div>
     </section>
 
     <!-- NOTES -->
-    <section id="tab-notes" class="tab-view">
+    <section id="sec-notes" style="display:none;">
       <div class="greeting">
         <h1>Notes</h1>
         <p>Capture quick thoughts and key details.</p>
@@ -482,14 +475,14 @@
       <div class="panel">
         <textarea id="noteField" placeholder="Write a quick note..."></textarea>
         <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-          <button type="button" class="btn" id="addNoteBtn">Save Note</button>
+          <button type="button" class="btn" onclick="addNt()">Save Note</button>
         </div>
         <div id="allNotes"></div>
       </div>
     </section>
 
     <!-- FOCUS TIMER -->
-    <section id="tab-focus" class="tab-view">
+    <section id="sec-focus" style="display:none;">
       <div class="greeting">
         <h1>Focus Timer</h1>
         <p>Work in focused blocks without distraction.</p>
@@ -497,7 +490,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Session Length</div>
-          <select id="focusMinutes">
+          <select id="focusMinutes" onchange="setFocusMins()">
             <option value="25" selected>25 min Focus</option>
             <option value="50">50 min Deep Work</option>
             <option value="5">5 min Break</option>
@@ -507,8 +500,8 @@
           <div class="date-label" id="focusStatus">Ready to start</div>
           <div class="timer-display" id="timerDisplay">25:00</div>
           <div class="timer-controls">
-            <button type="button" class="btn" id="startPauseBtn">Start</button>
-            <button type="button" class="btn btn-secondary" id="resetTimerBtn">Reset</button>
+            <button type="button" class="btn" id="startPauseBtn" onclick="runPauseTimer()">Start</button>
+            <button type="button" class="btn btn-secondary" onclick="resetFocTimer()">Reset</button>
           </div>
           <div class="date-label" style="margin-top: 14px;">
             Completed Focus Sessions Today: <strong id="focusCount">0</strong>
@@ -519,180 +512,200 @@
   </div>
 
   <nav class="bottom-nav">
-    <button type="button" class="nav-item active" data-tab="today">Today</button>
-    <button type="button" class="nav-item" data-tab="schedule">Calendar</button>
-    <button type="button" class="nav-item" data-tab="tasks">Tasks</button>
-    <button type="button" class="nav-item" data-tab="habits">Habits</button>
-    <button type="button" class="nav-item" data-tab="notes">Notes</button>
-    <button type="button" class="nav-item" data-tab="focus">Focus</button>
+    <button type="button" class="nav-item active" id="nav-today" onclick="showSection('today')">Today</button>
+    <button type="button" class="nav-item" id="nav-schedule" onclick="showSection('schedule')">Calendar</button>
+    <button type="button" class="nav-item" id="nav-tasks" onclick="showSection('tasks')">Tasks</button>
+    <button type="button" class="nav-item" id="nav-habits" onclick="showSection('habits')">Habits</button>
+    <button type="button" class="nav-item" id="nav-notes" onclick="showSection('notes')">Notes</button>
+    <button type="button" class="nav-item" id="nav-focus" onclick="showSection('focus')">Focus</button>
   </nav>
 
   <script>
-    (function () {
-      const KEY = 'lifehub_v4';
-      const now = new Date();
-      const todayISO = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    const STORE_KEY = 'lifehub_v4';
+    const dNow = new Date();
+    const todayStr = dNow.getFullYear() + '-' + String(dNow.getMonth() + 1).padStart(2, '0') + '-' + String(dNow.getDate()).padStart(2, '0');
 
-      const dateEl = document.getElementById('dateDisplay');
-      if (dateEl) {
-        dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    document.getElementById('dateDisplay').textContent = dNow.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+    document.getElementById('calDate').value = todayStr;
+
+    let appData = { tasks: [], habits: [], notes: [], schedules: [], focusToday: 0, focusDate: todayStr };
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORE_KEY) || localStorage.getItem('lifehub_v3') || 'null');
+      if (raw && typeof raw === 'object') {
+        appData.tasks = Array.isArray(raw.tasks) ? raw.tasks : [];
+        appData.habits = Array.isArray(raw.habits) ? raw.habits : [];
+        appData.notes = Array.isArray(raw.notes) ? raw.notes : [];
+        appData.schedules = Array.isArray(raw.schedules) ? raw.schedules : [];
+        appData.focusDate = raw.focusDate || todayStr;
+        appData.focusToday = appData.focusDate === todayStr ? Number(raw.focusToday || 0) : 0;
       }
+    } catch (e) {}
 
-      const calDateEl = document.getElementById('calDate');
-      if (calDateEl) calDateEl.value = todayISO;
-
-      let state = { tasks: [], habits: [], notes: [], schedules: [], focusToday: 0, focusDate: todayISO };
+    function commitData() {
       try {
-        const saved = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem('lifehub_v3') || 'null');
-        if (saved && typeof saved === 'object') {
-          state.tasks = Array.isArray(saved.tasks) ? saved.tasks : [];
-          state.habits = Array.isArray(saved.habits) ? saved.habits : [];
-          state.notes = Array.isArray(saved.notes) ? saved.notes : [];
-          state.schedules = Array.isArray(saved.schedules) ? saved.schedules : [];
-          state.focusDate = saved.focusDate || todayISO;
-          state.focusToday = state.focusDate === todayISO ? Number(saved.focusToday || 0) : 0;
+        localStorage.setItem(STORE_KEY, JSON.stringify(appData));
+      } catch (e) {}
+      drawApp();
+    }
+
+    function showSection(name) {
+      const sections = ['today', 'schedule', 'tasks', 'habits', 'notes', 'focus'];
+      for (let i = 0; i < sections.length; i++) {
+        const s = sections[i];
+        const secEl = document.getElementById('sec-' + s);
+        const navEl = document.getElementById('nav-' + s);
+        if (secEl) secEl.style.display = (s === name) ? 'block' : 'none';
+        if (navEl) navEl.className = (s === name) ? 'nav-item active' : 'nav-item';
+      }
+    }
+
+    function escText(str) {
+      return String(str || '').replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
+
+    function addSched() {
+      const dateVal = document.getElementById('calDate').value || todayStr;
+      const timeVal = document.getElementById('schedTime').value || '09:00';
+      const titleEl = document.getElementById('schedTitle');
+      const titleVal = titleEl.value.trim();
+      if (!titleVal) return;
+      appData.schedules.push({ id: Date.now(), date: dateVal, time: timeVal, title: titleVal, done: false });
+      appData.schedules.sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); });
+      titleEl.value = '';
+      commitData();
+    }
+
+    function toggleSched(id) {
+      const item = appData.schedules.find(function (x) { return x.id === id; });
+      if (item) { item.done = !item.done; commitData(); }
+    }
+
+    function delSched(id) {
+      appData.schedules = appData.schedules.filter(function (x) { return x.id !== id; });
+      commitData();
+    }
+
+    function addTsk() {
+      const el = document.getElementById('taskField');
+      const val = el.value.trim();
+      if (!val) return;
+      appData.tasks.unshift({ id: Date.now(), title: val, done: false });
+      el.value = '';
+      commitData();
+    }
+
+    function editTsk(id) {
+      const item = appData.tasks.find(function (x) { return x.id === id; });
+      if (!item) return;
+      const next = prompt('Edit task:', item.title);
+      if (next && next.trim()) { item.title = next.trim(); commitData(); }
+    }
+
+    function toggleTsk(id) {
+      const item = appData.tasks.find(function (x) { return x.id === id; });
+      if (item) { item.done = !item.done; commitData(); }
+    }
+
+    function delTsk(id) {
+      appData.tasks = appData.tasks.filter(function (x) { return x.id !== id; });
+      commitData();
+    }
+
+    function addHab() {
+      const el = document.getElementById('habitField');
+      const val = el.value.trim();
+      if (!val) return;
+      appData.habits.unshift({ id: Date.now(), name: val, dates: [] });
+      el.value = '';
+      commitData();
+    }
+
+    function toggleHab(id) {
+      const item = appData.habits.find(function (x) { return x.id === id; });
+      if (!item) return;
+      const list = Array.isArray(item.dates) ? item.dates : [];
+      if (list.indexOf(todayStr) > -1) {
+        item.dates = list.filter(function (d) { return d !== todayStr; });
+      } else {
+        item.dates = list.concat(todayStr);
+      }
+      commitData();
+    }
+
+    function delHab(id) {
+      appData.habits = appData.habits.filter(function (x) { return x.id !== id; });
+      commitData();
+    }
+
+    function addNt() {
+      const el = document.getElementById('noteField');
+      const val = el.value.trim();
+      if (!val) return;
+      appData.notes.unshift({
+        id: Date.now(),
+        body: val,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      el.value = '';
+      commitData();
+    }
+
+    function delNt(id) {
+      appData.notes = appData.notes.filter(function (x) { return x.id !== id; });
+      commitData();
+    }
+
+    let secRemaining = 25 * 60;
+    let tickRef = null;
+
+    function drawTimer() {
+      const mm = String(Math.floor(secRemaining / 60)).padStart(2, '0');
+      const ss = String(secRemaining % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = mm + ':' + ss;
+      document.getElementById('startPauseBtn').textContent = tickRef ? 'Pause' : 'Start';
+      document.getElementById('focusCount').textContent = String(appData.focusToday || 0);
+    }
+
+    function setFocusMins() {
+      if (tickRef) { clearInterval(tickRef); tickRef = null; }
+      const mins = Number(document.getElementById('focusMinutes').value) || 25;
+      secRemaining = mins * 60;
+      document.getElementById('focusStatus').textContent = 'Ready to start';
+      drawTimer();
+    }
+
+    function runPauseTimer() {
+      if (tickRef) {
+        clearInterval(tickRef);
+        tickRef = null;
+        document.getElementById('focusStatus').textContent = 'Paused';
+        drawTimer();
+        return;
+      }
+      document.getElementById('focusStatus').textContent = 'Focusing...';
+      drawTimer();
+      tickRef = setInterval(function () {
+        secRemaining -= 1;
+        if (secRemaining <= 0) {
+          clearInterval(tickRef);
+          tickRef = null;
+          const mode = document.getElementById('focusMinutes').value;
+          if (mode !== '5') {
+            appData.focusDate = todayStr;
+            appData.focusToday = Number(appData.focusToday || 0) + 1;
+            commitData();
+          }
+          secRemaining = (Number(mode) || 25) * 60;
+          document.getElementById('focusStatus').textContent = 'Session complete';
         }
-      } catch (err) {}
+        drawTimer();
+      }, 1000);
+    }
 
-      function save() {
-        try {
-          localStorage.setItem(KEY, JSON.stringify(state));
-        } catch (err) {}
-        render();
-      }
-
-      function switchTab(name) {
-        document.querySelectorAll('.tab-view').forEach(function (sec) {
-          sec.classList.toggle('active', sec.id === 'tab-' + name);
-        });
-        document.querySelectorAll('.nav-item').forEach(function (btn) {
-          btn.classList.toggle('active', btn.getAttribute('data-tab') === name);
-        });
-      }
-
-      document.querySelectorAll('[data-tab]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          switchTab(btn.getAttribute('data-tab'));
-        });
-      });
-
-      document.querySelectorAll('[data-go]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          switchTab(btn.getAttribute('data-go'));
-        });
-      });
-
-      function esc(str) {
-        return String(str || '').replace(/[&<>"']/g, function (c) {
-          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-        });
-      }
-
-      // Tasks
-      function addTask() {
-        const inp = document.getElementById('taskField');
-        const val = inp ? inp.value.trim() : '';
-        if (!val) return;
-        state.tasks.unshift({ id: Date.now(), title: val, done: false });
-        inp.value = '';
-        save();
-      }
-      document.getElementById('addTaskBtn').addEventListener('click', addTask);
-      document.getElementById('taskField').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') addTask();
-      });
-
-      // Schedule
-      function addSchedule() {
-        const titleInp = document.getElementById('schedTitle');
-        const timeInp = document.getElementById('schedTime');
-        const title = titleInp ? titleInp.value.trim() : '';
-        const time = (timeInp && timeInp.value) || '09:00';
-        const date = (calDateEl && calDateEl.value) || todayISO;
-        if (!title) return;
-        state.schedules.push({ id: Date.now(), date: date, time: time, title: title, done: false });
-        state.schedules.sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); });
-        titleInp.value = '';
-        save();
-      }
-      document.getElementById('addSchedBtn').addEventListener('click', addSchedule);
-      document.getElementById('schedTitle').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') addSchedule();
-      });
-      calDateEl.addEventListener('change', render);
-
-      // Habits
-      function addHabit() {
-        const inp = document.getElementById('habitField');
-        const val = inp ? inp.value.trim() : '';
-        if (!val) return;
-        state.habits.unshift({ id: Date.now(), name: val, dates: [] });
-        inp.value = '';
-        save();
-      }
-      document.getElementById('addHabitBtn').addEventListener('click', addHabit);
-      document.getElementById('habitField').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') addHabit();
-      });
-
-      // Notes
-      function addNote() {
-        const inp = document.getElementById('noteField');
-        const val = inp ? inp.value.trim() : '';
-        if (!val) return;
-        state.notes.unshift({
-          id: Date.now(),
-          body: val,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        });
-        inp.value = '';
-        save();
-      }
-      document.getElementById('addNoteBtn').addEventListener('click', addNote);
-
-      // Event delegation for dynamic list actions
-      document.addEventListener('click', function (e) {
-        const target = e.target;
-        if (!target) return;
-
-        if (target.matches('[data-toggle-task]')) {
-          const id = Number(target.getAttribute('data-toggle-task'));
-          const t = state.tasks.find(function (x) { return x.id === id; });
-          if (t) { t.done = !t.done; save(); }
-        } else if (target.matches('[data-edit-task]')) {
-          const id = Number(target.getAttribute('data-edit-task'));
-          const t = state.tasks.find(function (x) { return x.id === id; });
-          if (t) {
-            const next = prompt('Edit task:', t.title);
-            if (next && next.trim()) { t.title = next.trim(); save(); }
-          }
-        } else if (target.matches('[data-del-task]')) {
-          const id = Number(target.getAttribute('data-del-task'));
-          state.tasks = state.tasks.filter(function (x) { return x.id !== id; });
-          save();
-        } else if (target.matches('[data-toggle-sched]')) {
-          const id = Number(target.getAttribute('data-toggle-sched'));
-          const s = state.schedules.find(function (x) { return x.id === id; });
-          if (s) { s.done = !s.done; save(); }
-        } else if (target.matches('[data-del-sched]')) {
-          const id = Number(target.getAttribute('data-del-sched'));
-          state.schedules = state.schedules.filter(function (x) { return x.id !== id; });
-          save();
-        } else if (target.matches('[data-toggle-habit]')) {
-          const id = Number(target.getAttribute('data-toggle-habit'));
-          const h = state.habits.find(function (x) { return x.id === id; });
-          if (h) {
-            const list = Array.isArray(h.dates) ? h.dates : [];
-            if (list.indexOf(todayISO) > -1) {
-              h.dates = list.filter(function (d) { return d !== todayISO; });
-            } else {
-              h.dates = list.concat(todayISO);
-            }
-            save();
-          }
-        } else if (target.matches('[data-del-habit]')) {
-          const id = Number(target.getAttribute('data-del-habit'));
-          state.habits = state.habits.filter(function (x) { return x.id !== id; });
-          save();
-        } else if (target.matches('[data-del-note]')) {
-          const id = Number(targ
+    function resetFocTimer() {
