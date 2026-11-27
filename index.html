@@ -139,7 +139,7 @@ nav button.active{color:var(--accent);background:var(--card2)}
   <section class="view" id="view-notes" data-view="notes">
     <h2><svg class="i"><use href="#i-note"/></svg>Notes</h2>
     <textarea id="noteInput" placeholder="Write a note" maxlength="2000" aria-label="New note"></textarea>
-    <div class="row"><button class="btn" id="noteAdd"><svg class="i"><use href="#i-save"/></svg>Save Note</button></div>
+    <div class="row"><button class="btn" id="noteAdd"><svg class="i"><use href="#i-save"/></svg>Save</button></div>
     <div id="noteList"></div>
   </section>
 
@@ -151,7 +151,7 @@ nav button.active{color:var(--accent);background:var(--card2)}
         <option value="50">50 min Deep Work</option>
         <option value="5">5 min Break</option>
       </select>
-      <div id="clock" aria-live="off">25:00</div>
+      <div id="clock">25:00</div>
       <div class="row">
         <button class="btn" id="tStart"><svg class="i"><use href="#i-play"/></svg><span id="tStartLbl">Start</span></button>
         <button class="btn ghost" id="tReset"><svg class="i"><use href="#i-reset"/></svg>Reset</button>
@@ -225,14 +225,14 @@ nav button.active{color:var(--accent);background:var(--card2)}
   function eventsOn(date) { return state.events.filter(function (e) { return e.date === date; }).sort(byTime); }
   function find(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
   function remove(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) { list.splice(i, 1); return; } }
-  function isEditing(kind, id) { return editing && editing.kind === kind && editing.id === id; }
+  function isEditing(kind, id) { return !!(editing && editing.kind === kind && editing.id === id); }
 
   function eventRow(e) {
     return '<div class="item' + (e.done ? ' done' : '') + '">' +
       '<input type="checkbox" data-act="evt-toggle" data-id="' + esc(e.id) + '"' + (e.done ? ' checked' : '') + ' aria-label="Mark event complete">' +
       '<span class="time">' + ic('clock') + esc(e.time || '--:--') + '</span>' +
       '<span class="txt">' + esc(e.title) + '</span>' +
-      '<button class="btn sm del" data-act="evt-del" data-id="' + esc(e.id) + '" aria-label="Delete event">' + ic('trash') + '</button></div>';
+      '<button class="btn sm del" data-act="evt-del" data-id="' + esc(e.id) + '" aria-label="Delete event">' + ic('trash') + 'Delete</button></div>';
   }
   function taskRow(t, full) {
     if (full && isEditing('task', t.id)) {
@@ -243,8 +243,8 @@ nav button.active{color:var(--accent);background:var(--card2)}
     return '<div class="item' + (t.done ? ' done' : '') + '">' +
       '<input type="checkbox" data-act="task-toggle" data-id="' + esc(t.id) + '"' + (t.done ? ' checked' : '') + ' aria-label="Mark task complete">' +
       '<span class="txt">' + esc(t.text) + '</span>' +
-      (full ? '<button class="btn sm ghost" data-act="task-edit" data-id="' + esc(t.id) + '" aria-label="Edit task">' + ic('edit') + '</button>' +
-        '<button class="btn sm del" data-act="task-del" data-id="' + esc(t.id) + '" aria-label="Delete task">' + ic('trash') + '</button>' : '') + '</div>';
+      (full ? '<button class="btn sm ghost" data-act="task-edit" data-id="' + esc(t.id) + '" aria-label="Edit task">' + ic('edit') + 'Edit</button>' +
+        '<button class="btn sm del" data-act="task-del" data-id="' + esc(t.id) + '" aria-label="Delete task">' + ic('trash') + 'Delete</button>' : '') + '</div>';
   }
   function noteRow(n) {
     if (isEditing('note', n.id)) {
@@ -256,8 +256,8 @@ nav button.active{color:var(--accent);background:var(--card2)}
     try { when = new Date(n.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { when = ''; }
     if (n.edited) when += ' (edited)';
     return '<div class="note"><p>' + esc(n.text) + '</p><div class="meta"><span>' + esc(when) + '</span><span class="acts">' +
-      '<button class="btn sm ghost" data-act="note-edit" data-id="' + esc(n.id) + '" aria-label="Edit note">' + ic('edit') + '</button>' +
-      '<button class="btn sm del" data-act="note-del" data-id="' + esc(n.id) + '" aria-label="Delete note">' + ic('trash') + '</button></span></div></div>';
+      '<button class="btn sm ghost" data-act="note-edit" data-id="' + esc(n.id) + '" aria-label="Edit note">' + ic('edit') + 'Edit</button>' +
+      '<button class="btn sm del" data-act="note-del" data-id="' + esc(n.id) + '" aria-label="Delete note">' + ic('trash') + 'Delete</button></span></div></div>';
   }
 
   /* ---------- render ---------- */
@@ -289,7 +289,7 @@ nav button.active{color:var(--accent);background:var(--card2)}
         '<span class="txt">' + esc(h.name) + '</span>' +
         '<span class="badge">' + ic('flame') + streak(h) + 'd</span>' +
         '<button class="btn sm' + (done ? '' : ' ghost') + '" data-act="habit-toggle" data-id="' + esc(h.id) + '">' + ic('check') + (done ? 'Done' : 'Complete') + '</button>' +
-        '<button class="btn sm del" data-act="habit-del" data-id="' + esc(h.id) + '" aria-label="Delete habit">' + ic('trash') + '</button></div>';
+        '<button class="btn sm del" data-act="habit-del" data-id="' + esc(h.id) + '" aria-label="Delete habit">' + ic('trash') + 'Delete</button></div>';
     }).join('') : '<div class="empty">No habits yet. Add one above.</div>');
 
     setHTML('noteList', state.notes.length ? state.notes.map(noteRow).join('') : '<div class="empty">No notes saved yet.</div>');
@@ -315,4 +315,3 @@ nav button.active{color:var(--accent);background:var(--card2)}
   }
 
   /* ---------- adders ---------- */
-  function add
