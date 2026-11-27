@@ -91,6 +91,21 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
+      text-align: left;
+      color: var(--text);
+    }
+
+    .metric-clickable {
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.12s ease;
+    }
+
+    .metric-clickable:hover {
+      border-color: var(--accent);
+    }
+
+    .metric-clickable:active {
+      transform: scale(0.98);
     }
 
     .metric-val {
@@ -113,13 +128,33 @@
       margin-bottom: 14px;
     }
 
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
     .panel-title {
       font-size: 13px;
       font-weight: 600;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin-bottom: 12px;
+    }
+
+    .link-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
     }
 
     .input-group {
@@ -323,22 +358,25 @@
       </div>
 
       <div class="metrics">
-        <div class="metric">
+        <button type="button" class="metric metric-clickable" onclick="openTab('tasks')" title="View all tasks">
           <div class="metric-val" id="mTasks">0</div>
           <div class="metric-lbl">Pending Tasks</div>
-        </div>
-        <div class="metric">
+        </button>
+        <button type="button" class="metric metric-clickable" onclick="openTab('habits')" title="View habits">
           <div class="metric-val" id="mHabits">0/0</div>
           <div class="metric-lbl">Habits Done</div>
-        </div>
-        <div class="metric">
+        </button>
+        <button type="button" class="metric metric-clickable" onclick="openTab('notes')" title="View notes">
           <div class="metric-val" id="mNotes">0</div>
           <div class="metric-lbl">Saved Notes</div>
-        </div>
+        </button>
       </div>
 
       <div class="panel">
-        <div class="panel-title">Up Next</div>
+        <div class="panel-header">
+          <div class="panel-title">Up Next</div>
+          <button type="button" class="link-btn" onclick="openTab('tasks')">All Tasks</button>
+        </div>
         <div id="todayTasks"></div>
       </div>
     </section>
@@ -352,7 +390,7 @@
       <div class="panel">
         <div class="input-group">
           <input id="taskField" type="text" placeholder="What needs to get done?" onkeydown="if(event.key==='Enter') createTask()" />
-          <button class="btn" onclick="createTask()">Add</button>
+          <button type="button" class="btn" onclick="createTask()">Add</button>
         </div>
         <div id="allTasks"></div>
       </div>
@@ -367,7 +405,7 @@
       <div class="panel">
         <div class="input-group">
           <input id="habitField" type="text" placeholder="Add a daily habit..." onkeydown="if(event.key==='Enter') createHabit()" />
-          <button class="btn" onclick="createHabit()">Add</button>
+          <button type="button" class="btn" onclick="createHabit()">Add</button>
         </div>
         <div id="allHabits"></div>
       </div>
@@ -382,7 +420,7 @@
       <div class="panel">
         <textarea id="noteField" placeholder="Write a quick note..."></textarea>
         <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-          <button class="btn" onclick="createNote()">Save Note</button>
+          <button type="button" class="btn" onclick="createNote()">Save Note</button>
         </div>
         <div id="allNotes"></div>
       </div>
@@ -390,14 +428,14 @@
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-item active" id="btn-today" onclick="openTab('today')">Today</button>
-    <button class="nav-item" id="btn-tasks" onclick="openTab('tasks')">Tasks</button>
-    <button class="nav-item" id="btn-habits" onclick="openTab('habits')">Habits</button>
-    <button class="nav-item" id="btn-notes" onclick="openTab('notes')">Notes</button>
+    <button type="button" class="nav-item active" id="btn-today" onclick="openTab('today')">Today</button>
+    <button type="button" class="nav-item" id="btn-tasks" onclick="openTab('tasks')">Tasks</button>
+    <button type="button" class="nav-item" id="btn-habits" onclick="openTab('habits')">Habits</button>
+    <button type="button" class="nav-item" id="btn-notes" onclick="openTab('notes')">Notes</button>
   </nav>
 
   <script>
-    const KEY = 'lifehub_v1';
+    const KEY = 'lifehub_v2';
     const todayISO = new Date().toISOString().slice(0, 10);
 
     document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', {
@@ -406,14 +444,22 @@
       day: 'numeric'
     });
 
-    let data = JSON.parse(localStorage.getItem(KEY) || 'null') || {
-      tasks: [],
-      habits: [],
-      notes: []
-    };
+    let data;
+    try {
+      const parsed = JSON.parse(localStorage.getItem(KEY) || 'null');
+      data = {
+        tasks: Array.isArray(parsed && parsed.tasks) ? parsed.tasks : [],
+        habits: Array.isArray(parsed && parsed.habits) ? parsed.habits : [],
+        notes: Array.isArray(parsed && parsed.notes) ? parsed.notes : []
+      };
+    } catch (e) {
+      data = { tasks: [], habits: [], notes: [] };
+    }
 
     function persist() {
-      localStorage.setItem(KEY, JSON.stringify(data));
+      try {
+        localStorage.setItem(KEY, JSON.stringify(data));
+      } catch (e) {}
       renderAll();
     }
 
@@ -458,10 +504,11 @@
     function toggleHabit(id) {
       const item = data.habits.find(h => h.id === id);
       if (!item) return;
-      if (item.dates.includes(todayISO)) {
-        item.dates = item.dates.filter(d => d !== todayISO);
+      const dates = Array.isArray(item.dates) ? item.dates : [];
+      if (dates.includes(todayISO)) {
+        item.dates = dates.filter(d => d !== todayISO);
       } else {
-        item.dates.push(todayISO);
+        item.dates = [...dates, todayISO];
       }
       persist();
     }
@@ -490,7 +537,7 @@
     }
 
     function esc(text) {
-      return text.replace(/[&<>"']/g, ch => ({
+      return String(text || '').replace(/[&<>"']/g, ch => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
@@ -500,8 +547,8 @@
     }
 
     function renderAll() {
-      const pending = data.tasks.filter(t => !t.done);
-      const doneHabits = data.habits.filter(h => h.dates.includes(todayISO)).length;
+      const pending = data.tasks.filter(t => t && !t.done);
+      const doneHabits = data.habits.filter(h => h && Array.isArray(h.dates) && h.dates.includes(todayISO)).length;
 
       document.getElementById('mTasks').textContent = pending.length;
       document.getElementById('mHabits').textContent = `${doneHabits}/${data.habits.length}`;
@@ -511,8 +558,8 @@
         ? pending.slice(0, 5).map(t => `
             <div class="list-row">
               <div class="row-main">
-                <input type="checkbox" class="checkbox" onchange="toggleTask(${t.id})" />
-                <span class="item-text">${esc(t.title)}</span>
+                <input type="checkbox" class="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})" />
+                <span class="item-text ${t.done ? 'completed' : ''}">${esc(t.title)}</span>
               </div>
             </div>
           `).join('')
@@ -525,23 +572,23 @@
                 <input type="checkbox" class="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})" />
                 <span class="item-text ${t.done ? 'completed' : ''}">${esc(t.title)}</span>
               </div>
-              <button class="del-btn" onclick="removeTask(${t.id})">Delete</button>
+              <button type="button" class="del-btn" onclick="removeTask(${t.id})">Delete</button>
             </div>
           `).join('')
         : `<div class="empty-state">No tasks added yet.</div>`;
 
       document.getElementById('allHabits').innerHTML = data.habits.length
         ? data.habits.map(h => {
-            const isDone = h.dates.includes(todayISO);
+            const isDone = Array.isArray(h.dates) && h.dates.includes(todayISO);
             return `
               <div class="list-row">
                 <div class="row-main">
-                  <button class="btn-sm ${isDone ? 'done' : ''}" onclick="toggleHabit(${h.id})">
+                  <button type="button" class="btn-sm ${isDone ? 'done' : ''}" onclick="toggleHabit(${h.id})">
                     ${isDone ? 'Done' : 'Complete'}
                   </button>
                   <span class="item-text">${esc(h.name)}</span>
                 </div>
-                <button class="del-btn" onclick="removeHabit(${h.id})">Delete</button>
+                <button type="button" class="del-btn" onclick="removeHabit(${h.id})">Delete</button>
               </div>
             `;
           }).join('')
@@ -552,7 +599,7 @@
             <div class="note-card">
               <div class="note-meta">
                 <span>${esc(n.time)}</span>
-                <button class="del-btn" onclick="removeNote(${n.id})">Delete</button>
+                <button type="button" class="del-btn" onclick="removeNote(${n.id})">Delete</button>
               </div>
               <div class="note-body">${esc(n.body)}</div>
             </div>
