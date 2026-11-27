@@ -29,12 +29,12 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding-bottom: 84px;
+      padding-bottom: 88px;
       -webkit-font-smoothing: antialiased;
     }
 
     .app {
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
       padding: 20px 16px;
     }
@@ -133,6 +133,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+      gap: 8px;
     }
 
     .panel-title {
@@ -161,9 +162,15 @@
       display: flex;
       gap: 8px;
       margin-bottom: 14px;
+      flex-wrap: wrap;
     }
 
-    input, textarea {
+    .input-group input[type="text"] {
+      flex: 1;
+      min-width: 170px;
+    }
+
+    input, textarea, select {
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -175,7 +182,13 @@
       transition: border-color 0.15s ease;
     }
 
-    input:focus, textarea:focus {
+    input[type="date"], input[type="time"], select {
+      width: auto;
+      font-size: 13px;
+      padding: 10px;
+    }
+
+    input:focus, textarea:focus, select:focus {
       border-color: var(--accent);
     }
 
@@ -199,6 +212,12 @@
 
     .btn:hover {
       opacity: 0.92;
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
 
     .btn-sm {
@@ -266,6 +285,16 @@
       color: var(--muted);
     }
 
+    .time-badge {
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
     .streak-tag {
       font-size: 11px;
       color: var(--accent);
@@ -320,6 +349,26 @@
       word-break: break-word;
     }
 
+    .timer-box {
+      text-align: center;
+      padding: 12px 0 6px;
+    }
+
+    .timer-display {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin: 10px 0 14px;
+      color: var(--text);
+    }
+
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .empty-state {
       text-align: center;
       color: var(--muted);
@@ -345,18 +394,20 @@
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
-      padding: 8px 6px;
+      padding: 8px 4px;
+      overflow-x: auto;
     }
 
     .nav-item {
       background: transparent;
       border: none;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
-      padding: 8px 12px;
+      padding: 8px 9px;
       border-radius: 10px;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .nav-item.active {
@@ -377,7 +428,7 @@
     <section id="tab-today" class="tab-view active">
       <div class="greeting">
         <h1>Today</h1>
-        <p>Your daily tasks, habits, and notes in one calm space.</p>
+        <p>Your daily tasks, schedule, habits, and focus in one calm space.</p>
       </div>
 
       <div class="metrics">
@@ -389,10 +440,18 @@
           <div class="metric-val" id="mHabits">0/0</div>
           <div class="metric-lbl">Habits Done</div>
         </button>
-        <button type="button" class="metric metric-clickable" onclick="openTab('notes')" title="View notes">
-          <div class="metric-val" id="mNotes">0</div>
-          <div class="metric-lbl">Saved Notes</div>
+        <button type="button" class="metric metric-clickable" onclick="openTab('schedule')" title="View today's schedule">
+          <div class="metric-val" id="mSchedule">0</div>
+          <div class="metric-lbl">Scheduled Today</div>
         </button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Today's Schedule</div>
+          <button type="button" class="link-btn" onclick="openTab('schedule')">Open Calendar</button>
+        </div>
+        <div id="todaySchedule"></div>
       </div>
 
       <div class="panel">
@@ -401,6 +460,26 @@
           <button type="button" class="link-btn" onclick="openTab('tasks')">All Tasks</button>
         </div>
         <div id="todayTasks"></div>
+      </div>
+    </section>
+
+    <!-- CALENDAR & SCHEDULING -->
+    <section id="tab-schedule" class="tab-view">
+      <div class="greeting">
+        <h1>Calendar & Schedule</h1>
+        <p>Pick a date and plan your time slots clearly.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Selected Date</div>
+          <input id="calDate" type="date" onchange="renderAll()" />
+        </div>
+        <div class="input-group">
+          <input id="schedTime" type="time" value="09:00" />
+          <input id="schedTitle" type="text" placeholder="What is scheduled?" onkeydown="if(event.key==='Enter') createSchedule()" />
+          <button type="button" class="btn" onclick="createSchedule()">Schedule</button>
+        </div>
+        <div id="scheduleList"></div>
       </div>
     </section>
 
@@ -448,13 +527,44 @@
         <div id="allNotes"></div>
       </div>
     </section>
+
+    <!-- FOCUS TIMER -->
+    <section id="tab-focus" class="tab-view">
+      <div class="greeting">
+        <h1>Focus Timer</h1>
+        <p>Work in focused blocks without distraction.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Session Length</div>
+          <select id="focusMinutes" onchange="changeFocusLength()">
+            <option value="25" selected>25 min Focus</option>
+            <option value="50">50 min Deep Work</option>
+            <option value="5">5 min Break</option>
+          </select>
+        </div>
+        <div class="timer-box">
+          <div class="date-label" id="focusStatus">Ready to start</div>
+          <div class="timer-display" id="timerDisplay">25:00</div>
+          <div class="timer-controls">
+            <button type="button" class="btn" id="startPauseBtn" onclick="toggleTimer()">Start</button>
+            <button type="button" class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+          </div>
+          <div class="date-label" style="margin-top: 14px;">
+            Completed Focus Sessions Today: <strong id="focusCount">0</strong>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <nav class="bottom-nav">
     <button type="button" class="nav-item active" id="btn-today" onclick="openTab('today')">Today</button>
+    <button type="button" class="nav-item" id="btn-schedule" onclick="openTab('schedule')">Calendar</button>
     <button type="button" class="nav-item" id="btn-tasks" onclick="openTab('tasks')">Tasks</button>
     <button type="button" class="nav-item" id="btn-habits" onclick="openTab('habits')">Habits</button>
     <button type="button" class="nav-item" id="btn-notes" onclick="openTab('notes')">Notes</button>
+    <button type="button" class="nav-item" id="btn-focus" onclick="openTab('focus')">Focus</button>
   </nav>
 
   <script>
@@ -467,16 +577,21 @@
       day: 'numeric'
     });
 
+    const calInput = document.getElementById('calDate');
+    calInput.value = todayISO;
+
     let data;
     try {
       const parsed = JSON.parse(localStorage.getItem(KEY) || 'null');
       data = {
         tasks: Array.isArray(parsed && parsed.tasks) ? parsed.tasks : [],
         habits: Array.isArray(parsed && parsed.habits) ? parsed.habits : [],
-        notes: Array.isArray(parsed && parsed.notes) ? parsed.notes : []
+        notes: Array.isArray(parsed && parsed.notes) ? parsed.notes : [],
+        schedules: Array.isArray(parsed && parsed.schedules) ? parsed.schedules : [],
+        focusSessions: parsed && parsed.focusSessions && typeof parsed.focusSessions === 'object' ? parsed.focusSessions : {}
       };
     } catch (e) {
-      data = { tasks: [], habits: [], notes: [] };
+      data = { tasks: [], habits: [], notes: [], schedules: [], focusSessions: {} };
     }
 
     function persist() {
@@ -493,6 +608,33 @@
       document.getElementById('btn-' + tab).classList.add('active');
     }
 
+    // Calendar & Schedule
+    function createSchedule() {
+      const date = calInput.value || todayISO;
+      const time = document.getElementById('schedTime').value || '09:00';
+      const titleInput = document.getElementById('schedTitle');
+      const title = titleInput.value.trim();
+      if (!title) return;
+      data.schedules.push({ id: Date.now(), date, time, title, done: false });
+      data.schedules.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+      titleInput.value = '';
+      persist();
+    }
+
+    function toggleSchedule(id) {
+      const item = data.schedules.find(s => s.id === id);
+      if (item) {
+        item.done = !item.done;
+        persist();
+      }
+    }
+
+    function removeSchedule(id) {
+      data.schedules = data.schedules.filter(s => s.id !== id);
+      persist();
+    }
+
+    // Tasks
     function createTask() {
       const input = document.getElementById('taskField');
       const title = input.value.trim();
@@ -526,6 +668,7 @@
       persist();
     }
 
+    // Habits
     function getStreak(dates) {
       const set = new Set(Array.isArray(dates) ? dates : []);
       let count = 0;
@@ -566,6 +709,7 @@
       persist();
     }
 
+    // Notes
     function createNote() {
       const input = document.getElementById('noteField');
       const body = input.value.trim();
@@ -584,83 +728,31 @@
       persist();
     }
 
-    function esc(text) {
-      return String(text || '').replace(/[&<>"']/g, ch => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      }[ch]));
+    // Focus Timer
+    let remainingSec = 25 * 60;
+    let timerInterval = null;
+
+    function formatTime(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${m}:${s}`;
     }
 
-    function renderAll() {
-      const pending = data.tasks.filter(t => t && !t.done);
-      const doneHabits = data.habits.filter(h => h && Array.isArray(h.dates) && h.dates.includes(todayISO)).length;
-
-      document.getElementById('mTasks').textContent = pending.length;
-      document.getElementById('mHabits').textContent = `${doneHabits}/${data.habits.length}`;
-      document.getElementById('mNotes').textContent = data.notes.length;
-
-      document.getElementById('todayTasks').innerHTML = pending.length
-        ? pending.slice(0, 5).map(t => `
-            <div class="list-row">
-              <div class="row-main">
-                <input type="checkbox" class="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})" />
-                <span class="item-text ${t.done ? 'completed' : ''}">${esc(t.title)}</span>
-              </div>
-            </div>
-          `).join('')
-        : `<div class="empty-state">No pending tasks right now.</div>`;
-
-      document.getElementById('allTasks').innerHTML = data.tasks.length
-        ? data.tasks.map(t => `
-            <div class="list-row">
-              <div class="row-main">
-                <input type="checkbox" class="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})" />
-                <span class="item-text ${t.done ? 'completed' : ''}">${esc(t.title)}</span>
-              </div>
-              <div class="row-actions">
-                <button type="button" class="small-btn" onclick="editTask(${t.id})">Edit</button>
-                <button type="button" class="small-btn del-btn" onclick="removeTask(${t.id})">Delete</button>
-              </div>
-            </div>
-          `).join('')
-        : `<div class="empty-state">No tasks added yet.</div>`;
-
-      document.getElementById('allHabits').innerHTML = data.habits.length
-        ? data.habits.map(h => {
-            const isDone = Array.isArray(h.dates) && h.dates.includes(todayISO);
-            const streak = getStreak(h.dates);
-            return `
-              <div class="list-row">
-                <div class="row-main">
-                  <button type="button" class="btn-sm ${isDone ? 'done' : ''}" onclick="toggleHabit(${h.id})">
-                    ${isDone ? 'Done' : 'Complete'}
-                  </button>
-                  <span class="item-text">${esc(h.name)}</span>
-                  ${streak > 0 ? `<span class="streak-tag">${streak}d</span>` : ''}
-                </div>
-                <button type="button" class="small-btn del-btn" onclick="removeHabit(${h.id})">Delete</button>
-              </div>
-            `;
-          }).join('')
-        : `<div class="empty-state">No habits added yet.</div>`;
-
-      document.getElementById('allNotes').innerHTML = data.notes.length
-        ? data.notes.map(n => `
-            <div class="note-card">
-              <div class="note-meta">
-                <span>${esc(n.time)}</span>
-                <button type="button" class="small-btn del-btn" onclick="removeNote(${n.id})">Delete</button>
-              </div>
-              <div class="note-body">${esc(n.body)}</div>
-            </div>
-          `).join('')
-        : `<div class="empty-state">No notes saved yet.</div>`;
+    function updateTimerUI() {
+      document.getElementById('timerDisplay').textContent = formatTime(remainingSec);
+      document.getElementById('startPauseBtn').textContent = timerInterval ? 'Pause' : 'Start';
+      document.getElementById('focusCount').textContent = Number(data.focusSessions[todayISO] || 0);
     }
 
-    renderAll();
-  </script>
-</body>
-</html>
+    function changeFocusLength() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      const mins = Number(document.getElementById('focusMinutes').value) || 25;
+      remainingSec = mins * 60;
+      document.getElementById('focusStatus').textContent = 'Ready to start';
+      updateTimerUI();
+    }
+
+    function tog
