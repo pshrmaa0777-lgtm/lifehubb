@@ -1,388 +1,735 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>LIFEHUB</title>
-<style>
-:root{--bg:#0b0f17;--card:#131a26;--card2:#1a2333;--accent:#38bdf8;--text:#e6edf6;--muted:#8394ab;--line:#22304a;--danger:#f87171;--ok:#34d399}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-body{min-height:100vh;padding:max(16px,env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom))}
-main{max-width:640px;margin:0 auto}
-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
-.logo{font-weight:800;letter-spacing:.14em;color:var(--accent);font-size:1.1rem}
-#dateLabel{color:var(--muted);font-size:.9rem}
-.view{display:none}
-.view.active{display:block}
-h2{font-size:1.15rem;margin:0 0 12px}
-h3{font-size:.95rem;margin:20px 0 8px;color:var(--muted);font-weight:600}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;color:var(--text);cursor:pointer;font:inherit}
-.stat:hover,.stat:focus-visible{border-color:var(--accent);outline:none}
-.stat b{display:block;font-size:1.8rem;color:var(--accent)}
-.stat span{color:var(--muted);font-size:.85rem}
-.row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-input[type=text],input[type=date],input[type=time],select,textarea{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit;min-width:0}
-input[type=text]{flex:1}
-textarea{width:100%;min-height:90px;resize:vertical;margin-bottom:8px}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
-button{font:inherit;cursor:pointer}
-.btn{background:var(--accent);color:#04202e;border:0;border-radius:10px;padding:10px 16px;font-weight:700}
-.btn:hover{filter:brightness(1.1)}
-.btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line);font-weight:600}
-.btn.sm{padding:6px 10px;font-size:.8rem;border-radius:8px}
-.btn.del{background:transparent;color:var(--danger);border:1px solid var(--line)}
-.item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
-.item .txt{flex:1;min-width:0;overflow-wrap:anywhere}
-.item.done .txt{text-decoration:line-through;color:var(--muted)}
-.item input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
-.time{color:var(--accent);font-variant-numeric:tabular-nums;font-size:.85rem;flex:none}
-.badge{background:var(--card2);color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:700;flex:none}
-.empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
-.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
-.note p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
-.note .meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.8rem}
-.timer{text-align:center;padding:24px 14px}
-#clock{font-size:4rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em;margin:14px 0}
-.timer .row{justify-content:center}
-.done-count{color:var(--muted)}
-.done-count b{color:var(--ok)}
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
-nav button{flex:1;background:none;border:0;color:var(--muted);padding:8px 2px;font-size:.72rem;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:2px}
-nav button .ic{font-size:1.2rem;line-height:1}
-nav button.active{color:var(--accent);background:var(--card2)}
-@media (prefers-reduced-motion:no-preference){.view.active{animation:fade .18s ease-out}@keyframes fade{from{opacity:0}to{opacity:1}}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIFEHUB</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #131a26;
+      --surface-2: #1a2436;
+      --border: #253248;
+      --text: #f1f5f9;
+      --muted: #8b9bb4;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --success: #22c55e;
+      --success-soft: rgba(34, 197, 94, 0.15);
+      --danger: #fb7185;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 92px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ico {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .ico-sm {
+      width: 14px;
+      height: 14px;
+    }
+
+    .app {
+      max-width: 580px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
+
+    h1 {
+      font-size: 21px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      text-align: left;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.12s ease;
+    }
+
+    .metric:hover {
+      border-color: var(--accent);
+    }
+
+    .metric:active {
+      transform: scale(0.99);
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .metric-val {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .metric-lbl {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .panel-hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .panel-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
+    }
+
+    .row-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .row-form input[type="text"] {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input[type="date"], input[type="time"], select {
+      width: auto;
+      font-size: 13px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #061018;
+      border: none;
+      border-radius: 10px;
+      padding: 0 15px;
+      height: 40px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      opacity: 0.92;
+    }
+
+    .btn-sec {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-sm.done {
+      background: var(--success-soft);
+      color: var(--success);
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .chk {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .txt {
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .txt.done {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 5px 6px;
+      border-radius: 6px;
+    }
+
+    .icon-btn:hover {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+
+    .del:hover {
+      color: var(--danger);
+      background: rgba(251, 113, 133, 0.12);
+    }
+
+    .note {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .note-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .note-txt {
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .timer-wrap {
+      text-align: center;
+      padding: 10px 0 4px;
+    }
+
+    .timer-num {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin: 10px 0 14px;
+    }
+
+    .timer-btns {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 16px 6px;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(11, 15, 23, 0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 4px;
+      overflow-x: auto;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 6px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-<main>
-  <header><div class="logo">LIFEHUB</div><div id="dateLabel"></div></header>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <symbol id="i-sparkles" viewBox="0 0 24 24">
+      <path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z" />
+      <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z" />
+    </symbol>
+    <symbol id="i-home" viewBox="0 0 24 24">
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z" />
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="17" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="M9 11l3 3L22 4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24">
+      <path d="M12 3c2.5 3 4 5.5 4 8.5a4 4 0 1 1-8 0c0-1.6.7-3.2 2-4.8-.3 1.8.6 3.1 2 3.3 0-2.5 0-4.7 0-7z" />
+    </symbol>
+    <symbol id="i-note" viewBox="0 0 24 24">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6M8 13h8M8 17h5" />
+    </symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24">
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l2.5 2.5M9.5 2h5" />
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14" />
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    </symbol>
+    <symbol id="i-play" viewBox="0 0 24 24">
+      <polygon points="6 4 20 12 6 20 6 4" />
+    </symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24">
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
+    </symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24">
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+      <path d="M3 3v5h5" />
+    </symbol>
+    <symbol id="i-save" viewBox="0 0 24 24">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <path d="M17 21v-8H7v8M7 3v5h8" />
+    </symbol>
+  </svg>
 
-  <section class="view active" id="view-today" data-view="today">
-    <div class="grid">
-      <button class="stat" data-goto="tasks"><b id="sTasks">0</b><span>Pending tasks</span></button>
-      <button class="stat" data-goto="calendar"><b id="sSched">0</b><span>Scheduled today</span></button>
-      <button class="stat" data-goto="habits"><b id="sHabits">0/0</b><span>Habits done</span></button>
-      <button class="stat" data-goto="notes"><b id="sNotes">0</b><span>Saved notes</span></button>
-    </div>
-    <h3>Today's schedule</h3>
-    <div id="todaySched"></div>
-    <h3>Up next</h3>
-    <div id="upNext"></div>
-  </section>
-
-  <section class="view" id="view-calendar" data-view="calendar">
-    <h2>Calendar</h2>
-    <div class="row">
-      <input type="date" id="calDate" aria-label="Date">
-      <input type="time" id="calTime" aria-label="Time">
-    </div>
-    <div class="row">
-      <input type="text" id="calTitle" placeholder="Event title" maxlength="120" aria-label="Event title">
-      <button class="btn" id="calAdd">Schedule</button>
-    </div>
-    <div id="calList"></div>
-  </section>
-
-  <section class="view" id="view-tasks" data-view="tasks">
-    <h2>Tasks</h2>
-    <div class="row">
-      <input type="text" id="taskInput" placeholder="Add a task" maxlength="160" aria-label="New task">
-      <button class="btn" id="taskAdd">Add task</button>
-    </div>
-    <div id="taskList"></div>
-  </section>
-
-  <section class="view" id="view-habits" data-view="habits">
-    <h2>Habits</h2>
-    <div class="row">
-      <input type="text" id="habitInput" placeholder="Add a habit" maxlength="80" aria-label="New habit">
-      <button class="btn" id="habitAdd">Add habit</button>
-    </div>
-    <div id="habitList"></div>
-  </section>
-
-  <section class="view" id="view-notes" data-view="notes">
-    <h2>Notes</h2>
-    <textarea id="noteInput" placeholder="Write a note" maxlength="2000" aria-label="New note"></textarea>
-    <div class="row"><button class="btn" id="noteAdd">Save note</button></div>
-    <div id="noteList"></div>
-  </section>
-
-  <section class="view" id="view-focus" data-view="focus">
-    <h2>Focus</h2>
-    <div class="card timer">
-      <select id="lenSel" aria-label="Session length">
-        <option value="25">25 min Focus</option>
-        <option value="50">50 min Deep Work</option>
-        <option value="5">5 min Break</option>
-      </select>
-      <div id="clock">25:00</div>
-      <div class="row">
-        <button class="btn" id="tStart">Start</button>
-        <button class="btn ghost" id="tReset">Reset</button>
+  <div class="app">
+    <div class="top-bar">
+      <div class="logo">
+        <svg class="ico" style="color:var(--accent)"><use href="#i-sparkles" /></svg>
+        LIFE<span>HUB</span>
       </div>
-      <div class="done-count">Focus sessions completed today: <b id="sessCount">0</b></div>
+      <div class="date-pill">
+        <svg class="ico ico-sm"><use href="#i-calendar" /></svg>
+        <span id="dateLbl"></span>
+      </div>
     </div>
-  </section>
-</main>
 
-<nav id="nav" aria-label="Main">
-  <button data-tab="today" class="active"><span class="ic">&#9673;</span>Today</button>
-  <button data-tab="calendar"><span class="ic">&#9638;</span>Calendar</button>
-  <button data-tab="tasks"><span class="ic">&#10003;</span>Tasks</button>
-  <button data-tab="habits"><span class="ic">&#8635;</span>Habits</button>
-  <button data-tab="notes"><span class="ic">&#9998;</span>Notes</button>
-  <button data-tab="focus"><span class="ic">&#9201;</span>Focus</button>
-</nav>
+    <section id="view-today">
+      <h1>Today</h1>
+      <p class="sub">Tasks, schedule, habits, notes, and focus in one calm space.</p>
 
-<script>
-(function () {
-  'use strict';
-  var KEY = 'lifehub_v4';
-  var state = { tasks: [], events: [], habits: [], notes: [], sessions: {} };
-  var tab = 'today';
+      <div class="metrics">
+        <button type="button" class="metric" onclick="go('tasks')">
+          <div class="metric-top">
+            <span class="metric-val" id="cTasks">0</span>
+            <svg class="ico"><use href="#i-check" /></svg>
+          </div>
+          <div class="metric-lbl">Pending Tasks</div>
+        </button>
 
-  function $(id) { return document.getElementById(id); }
-  function arr(v) { return Array.isArray(v) ? v : []; }
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-  function today() { return ymd(new Date()); }
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-  function setHTML(id, html) { var el = $(id); if (el) el.innerHTML = html; }
-  function setText(id, t) { var el = $(id); if (el) el.textContent = t; }
+        <button type="button" class="metric" onclick="go('schedule')">
+          <div class="metric-top">
+            <span class="metric-val" id="cSched">0</span>
+            <svg class="ico"><use href="#i-calendar" /></svg>
+          </div>
+          <div class="metric-lbl">Scheduled Today</div>
+        </button>
 
-  /* ---------- storage ---------- */
-  function load() {
+        <button type="button" class="metric" onclick="go('habits')">
+          <div class="metric-top">
+            <span class="metric-val" id="cHabits">0/0</span>
+            <svg class="ico"><use href="#i-flame" /></svg>
+          </div>
+          <div class="metric-lbl">Habits Done</div>
+        </button>
+
+        <button type="button" class="metric" onclick="go('notes')">
+          <div class="metric-top">
+            <span class="metric-val" id="cNotes">0</span>
+            <svg class="ico"><use href="#i-note" /></svg>
+          </div>
+          <div class="metric-lbl">Saved Notes</div>
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <span class="panel-title">
+            <svg class="ico ico-sm"><use href="#i-calendar" /></svg>
+            Today's Schedule
+          </span>
+          <button type="button" class="link-btn" onclick="go('schedule')">Calendar</button>
+        </div>
+        <div id="homeSched"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <span class="panel-title">
+            <svg class="ico ico-sm"><use href="#i-check" /></svg>
+            Up Next
+          </span>
+          <button type="button" class="link-btn" onclick="go('tasks')">All Tasks</button>
+        </div>
+        <div id="homeTasks"></div>
+      </div>
+    </section>
+
+    <section id="view-schedule" style="display:none;">
+      <h1>Calendar & Schedule</h1>
+      <p class="sub">Pick a date and plan your time slots clearly.</p>
+      <div class="panel">
+        <div class="panel-hd">
+          <span class="panel-title">
+            <svg class="ico ico-sm"><use href="#i-calendar" /></svg>
+            Selected Date
+          </span>
+          <input type="date" id="calPicker" onchange="render()" />
+        </div>
+        <div class="row-form">
+          <input type="time" id="sTime" value="09:00" />
+          <input type="text" id="sTitle" placeholder="What is scheduled?" onkeydown="if(event.key==='Enter') addSched()" />
+          <button type="button" class="btn" onclick="addSched()">
+            <svg class="ico ico-sm"><use href="#i-plus" /></svg>
+            Add
+          </button>
+        </div>
+        <div id="schedList"></div>
+      </div>
+    </section>
+
+    <section id="view-tasks" style="display:none;">
+      <h1>Tasks</h1>
+      <p class="sub">Add, edit, complete, or delete daily tasks.</p>
+      <div class="panel">
+        <div class="row-form">
+          <input type="text" id="tInput" placeholder="What needs to get done?" onkeydown="if(event.key==='Enter') addTask()" />
+          <button type="button" class="btn" onclick="addTask()">
+            <svg class="ico ico-sm"><use href="#i-plus" /></svg>
+            Add
+          </button>
+        </div>
+        <div id="taskList"></div>
+      </div>
+    </section>
+
+    <section id="view-habits" style="display:none;">
+      <h1>Habits</h1>
+      <p class="sub">Build steady consistency with daily streaks.</p>
+      <div class="panel">
+        <div class="row-form">
+          <input type="text" id="hInput" placeholder="Add a daily habit..." onkeydown="if(event.key==='Enter') addHabit()" />
+          <button type="button" class="btn" onclick="addHabit()">
+            <svg class="ico ico-sm"><use href="#i-plus" /></svg>
+            Add
+          </button>
+        </div>
+        <div id="habitList"></div>
+      </div>
+    </section>
+
+    <section id="view-notes" style="display:none;">
+      <h1>Notes</h1>
+      <p class="sub">Capture quick notes and edit anytime.</p>
+      <div class="panel">
+        <textarea id="nInput" placeholder="Write a quick note..."></textarea>
+        <div style="margin-top:10px;text-align:right;">
+          <button type="button" class="btn" onclick="addNote()">
+            <svg class="ico ico-sm"><use href="#i-save" /></svg>
+            Save Note
+          </button>
+        </div>
+        <div id="noteList"></div>
+      </div>
+    </section>
+
+    <section id="view-focus" style="display:none;">
+      <h1>Focus Timer</h1>
+      <p class="sub">Work in focused blocks without distraction.</p>
+      <div class="panel">
+        <div class="panel-hd">
+          <span class="panel-title">
+            <svg class="ico ico-sm"><use href="#i-timer" /></svg>
+            Session Length
+          </span>
+          <select id="fMins" onchange="changeMins()">
+            <option value="25" selected>25 min Focus</option>
+            <option value="50">50 min Deep Work</option>
+            <option value="5">5 min Break</option>
+          </select>
+        </div>
+        <div class="timer-wrap">
+          <div class="muted" id="fStatus">Ready to start</div>
+          <div class="timer-num" id="fClock">25:00</div>
+          <div class="timer-btns">
+            <button type="button" class="btn" id="fToggle" onclick="toggleTimer()">
+              <svg class="ico ico-sm"><use href="#i-play" /></svg>
+              Start
+            </button>
+            <button type="button" class="btn btn-sec" onclick="resetTimer()">
+              <svg class="ico ico-sm"><use href="#i-reset" /></svg>
+              Reset
+            </button>
+          </div>
+          <div class="muted" style="margin-top:14px;">
+            Completed Focus Sessions Today: <strong id="fDoneCount">0</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="nav">
+    <button type="button" class="nav-btn active" id="tab-today" onclick="go('today')">
+      <svg class="ico"><use href="#i-home" /></svg>
+      <span>Today</span>
+    </button>
+    <button type="button" class="nav-btn" id="tab-schedule" onclick="go('schedule')">
+      <svg class="ico"><use href="#i-calendar" /></svg>
+      <span>Calendar</span>
+    </button>
+    <button type="button" class="nav-btn" id="tab-tasks" onclick="go('tasks')">
+      <svg class="ico"><use href="#i-check" /></svg>
+      <span>Tasks</span>
+    </button>
+    <button type="button" class="nav-btn" id="tab-habits" onclick="go('habits')">
+      <svg class="ico"><use href="#i-flame" /></svg>
+      <span>Habits</span>
+    </button>
+    <button type="button" class="nav-btn" id="tab-notes" onclick="go('notes')">
+      <svg class="ico"><use href="#i-note" /></svg>
+      <span>Notes</span>
+    </button>
+    <button type="button" class="nav-btn" id="tab-focus" onclick="go('focus')">
+      <svg class="ico"><use href="#i-timer" /></svg>
+      <span>Focus</span>
+    </button>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = 'lifehub_v4';
+    const d = new Date();
+    const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    document.getElementById('dateLbl').textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    document.getElementById('calPicker').value = today;
+
+    let db = { tasks: [], habits: [], notes: [], schedules: [], focusCount: 0, focusDay: today };
     try {
-      var raw = localStorage.getItem(KEY);
-      if (!raw) return;
-      var d = JSON.parse(raw);
-      if (!d || typeof d !== 'object') return;
-      state.tasks = arr(d.tasks).filter(function (t) { return t && typeof t.text === 'string'; });
-      state.events = arr(d.events).filter(function (e) { return e && typeof e.title === 'string'; });
-      state.habits = arr(d.habits).filter(function (h) { return h && typeof h.name === 'string'; })
-        .map(function (h) { h.dates = arr(h.dates); return h; });
-      state.notes = arr(d.notes).filter(function (n) { return n && typeof n.text === 'string'; });
-      state.sessions = (d.sessions && typeof d.sessions === 'object' && !Array.isArray(d.sessions)) ? d.sessions : {};
-    } catch (e) { /* ignore malformed or unavailable storage */ }
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage full or blocked */ }
-  }
-
-  /* ---------- helpers ---------- */
-  function streak(h) {
-    var set = {}, i;
-    for (i = 0; i < h.dates.length; i++) set[h.dates[i]] = true;
-    var d = new Date();
-    if (!set[ymd(d)]) d.setDate(d.getDate() - 1);
-    var n = 0;
-    while (set[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
-    return n;
-  }
-  function byTime(a, b) { return (a.time || '').localeCompare(b.time || ''); }
-  function eventsOn(date) { return state.events.filter(function (e) { return e.date === date; }).sort(byTime); }
-  function find(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
-  function remove(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) { list.splice(i, 1); return; } }
-
-  function eventRow(e) {
-    return '<div class="item' + (e.done ? ' done' : '') + '">' +
-      '<input type="checkbox" data-act="evt-toggle" data-id="' + esc(e.id) + '"' + (e.done ? ' checked' : '') + ' aria-label="Complete event">' +
-      '<span class="time">' + esc(e.time || '--:--') + '</span>' +
-      '<span class="txt">' + esc(e.title) + '</span>' +
-      '<button class="btn sm del" data-act="evt-del" data-id="' + esc(e.id) + '">Delete</button></div>';
-  }
-  function taskRow(t, full) {
-    return '<div class="item' + (t.done ? ' done' : '') + '">' +
-      '<input type="checkbox" data-act="task-toggle" data-id="' + esc(t.id) + '"' + (t.done ? ' checked' : '') + ' aria-label="Complete task">' +
-      '<span class="txt">' + esc(t.text) + '</span>' +
-      (full ? '<button class="btn sm ghost" data-act="task-edit" data-id="' + esc(t.id) + '">Edit</button>' +
-        '<button class="btn sm del" data-act="task-del" data-id="' + esc(t.id) + '">Delete</button>' : '') + '</div>';
-  }
-
-  /* ---------- render ---------- */
-  function render() {
-    var td = today();
-    var d = new Date();
-    setText('dateLabel', d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }));
-
-    var pending = state.tasks.filter(function (t) { return !t.done; });
-    var todayEvents = eventsOn(td);
-    var doneHabits = state.habits.filter(function (h) { return h.dates.indexOf(td) !== -1; }).length;
-
-    setText('sTasks', String(pending.length));
-    setText('sSched', String(todayEvents.length));
-    setText('sHabits', doneHabits + '/' + state.habits.length);
-    setText('sNotes', String(state.notes.length));
-    setHTML('todaySched', todayEvents.length ? todayEvents.map(eventRow).join('') : '<div class="empty">Nothing scheduled today.</div>');
-    setHTML('upNext', pending.length ? pending.slice(0, 5).map(function (t) { return taskRow(t, false); }).join('') : '<div class="empty">No pending tasks.</div>');
-
-    var cal = $('calDate');
-    var sel = cal && cal.value ? cal.value : td;
-    var list = eventsOn(sel);
-    setHTML('calList', list.length ? list.map(eventRow).join('') : '<div class="empty">No events on this date.</div>');
-
-    setHTML('taskList', state.tasks.length ? state.tasks.map(function (t) { return taskRow(t, true); }).join('') : '<div class="empty">No tasks yet. Add one above.</div>');
-
-    setHTML('habitList', state.habits.length ? state.habits.map(function (h) {
-      var done = h.dates.indexOf(td) !== -1;
-      return '<div class="item' + (done ? ' done' : '') + '">' +
-        '<span class="txt">' + esc(h.name) + '</span>' +
-        '<span class="badge">' + streak(h) + 'd</span>' +
-        '<button class="btn sm' + (done ? '' : ' ghost') + '" data-act="habit-toggle" data-id="' + esc(h.id) + '">' + (done ? 'Done' : 'Complete') + '</button>' +
-        '<button class="btn sm del" data-act="habit-del" data-id="' + esc(h.id) + '">Delete</button></div>';
-    }).join('') : '<div class="empty">No habits yet. Add one above.</div>');
-
-    setHTML('noteList', state.notes.length ? state.notes.map(function (n) {
-      var when = '';
-      try { when = new Date(n.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { when = ''; }
-      return '<div class="note"><p>' + esc(n.text) + '</p><div class="meta"><span>' + esc(when) + '</span>' +
-        '<button class="btn sm del" data-act="note-del" data-id="' + esc(n.id) + '">Delete</button></div></div>';
-    }).join('') : '<div class="empty">No notes saved yet.</div>');
-
-    setText('sessCount', String(state.sessions[td] || 0));
-  }
-
-  function commit() { save(); render(); }
-
-  function go(name) {
-    tab = name;
-    var views = document.querySelectorAll('.view');
-    for (var i = 0; i < views.length; i++) views[i].classList.toggle('active', views[i].getAttribute('data-view') === name);
-    var btns = document.querySelectorAll('#nav button');
-    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('active', btns[j].getAttribute('data-tab') === name);
-    window.scrollTo(0, 0);
-    render();
-  }
-
-  /* ---------- adders ---------- */
-  function addTask() {
-    var el = $('taskInput'); if (!el) return;
-    var v = el.value.trim(); if (!v) return;
-    state.tasks.push({ id: uid(), text: v, done: false });
-    el.value = ''; commit();
-  }
-  function addHabit() {
-    var el = $('habitInput'); if (!el) return;
-    var v = el.value.trim(); if (!v) return;
-    state.habits.push({ id: uid(), name: v, dates: [] });
-    el.value = ''; commit();
-  }
-  function addEvent() {
-    var dEl = $('calDate'), tEl = $('calTime'), nEl = $('calTitle');
-    if (!dEl || !tEl || !nEl) return;
-    var title = nEl.value.trim();
-    if (!title) { nEl.focus(); return; }
-    state.events.push({ id: uid(), date: dEl.value || today(), time: tEl.value || '', title: title, done: false });
-    nEl.value = ''; commit();
-  }
-  function addNote() {
-    var el = $('noteInput'); if (!el) return;
-    var v = el.value.trim(); if (!v) return;
-    state.notes.unshift({ id: uid(), text: v, ts: Date.now() });
-    el.value = ''; commit();
-  }
-
-  /* ---------- events ---------- */
-  function on(id, type, fn) { var el = $(id); if (el) el.addEventListener(type, fn); }
-  function onEnter(id, fn) { on(id, 'keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fn(); } }); }
-
-  document.addEventListener('click', function (e) {
-    var t = e.target;
-    if (!t || !t.closest) return;
-    var tabBtn = t.closest('[data-tab]');
-    if (tabBtn) { go(tabBtn.getAttribute('data-tab')); return; }
-    var goBtn = t.closest('[data-goto]');
-    if (goBtn) { go(goBtn.getAttribute('data-goto')); return; }
-    var a = t.closest('[data-act]');
-    if (!a) return;
-    var act = a.getAttribute('data-act'), id = a.getAttribute('data-id'), item;
-    if (act === 'task-toggle') { item = find(state.tasks, id); if (item) item.done = !item.done; }
-    else if (act === 'task-del') { remove(state.tasks, id); }
-    else if (act === 'task-edit') {
-      item = find(state.tasks, id);
-      if (item) {
-        var nv = window.prompt('Edit task', item.text);
-        if (nv !== null && nv.trim()) item.text = nv.trim();
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (raw) {
+        db.tasks = Array.isArray(raw.tasks) ? raw.tasks : [];
+        db.habits = Array.isArray(raw.habits) ? raw.habits : [];
+        db.notes = Array.isArray(raw.notes) ? raw.notes : [];
+        db.schedules = Array.isArray(raw.schedules) ? raw.schedules : [];
+        db.focusDay = raw.focusDay || today;
+        db.focusCount = db.focusDay === today ? Number(raw.focusCount || 0) : 0;
       }
+    } catch (_) {}
+
+    function save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); } catch (_) {}
+      render();
     }
-    else if (act === 'evt-toggle') { item = find(state.events, id); if (item) item.done = !item.done; }
-    else if (act === 'evt-del') { remove(state.events, id); }
-    else if (act === 'habit-toggle') {
-      item = find(state.habits, id);
-      if (item) {
-        var td = today(), i = item.dates.indexOf(td);
-        if (i === -1) item.dates.push(td); else item.dates.splice(i, 1);
-      }
-    }
-    else if (act === 'habit-del') { remove(state.habits, id); }
-    else if (act === 'note-del') { remove(state.notes, id); }
-    else return;
-    commit();
-  });
 
-  on('taskAdd', 'click', addTask); onEnter('taskInput', addTask);
-  on('habitAdd', 'click', addHabit); onEnter('habitInput', addHabit);
-  on('calAdd', 'click', addEvent); onEnter('calTitle', addEvent);
-  on('noteAdd', 'click', addNote);
-  on('calDate', 'change', render);
-
-  /* ---------- focus timer ---------- */
-  var total = 25 * 60, remaining = total, running = false, endAt = 0, iv = null;
-
-  function fmt(s) { s = Math.max(0, s); return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
-  function drawClock() {
-    setText('clock', fmt(remaining));
-    setText('tStart', running ? 'Pause' : (remaining < total && remaining > 0 ? 'Resume' : 'Start'));
-    document.title = running ? fmt(remaining) + ' · LIFEHUB' : 'LIFEHUB';
-  }
-  function stopTick() { if (iv) { clearInterval(iv); iv = null; } running = false; }
-  function tick() {
-    remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
-    if (remaining <= 0) {
-      stopTick();
-      var mins = Math.round(total / 60);
-      if (mins !== 5) { var td = today(); state.sessions[td] = (state.sessions[td] || 0) + 1; save(); render(); }
-      remaining = total;
-      try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { /* ignore */ }
-      window.setTimeout(function () { window.alert(mins === 5 ? 'Break over.' : 'Session complete. Nice work.'); }, 50);
-    }
-    drawClock();
-  }
-  function startPause() {
-    if (running) { stopTick(); drawClock(); return; }
-    if (remaining <= 0) remaining = total;
-    endAt = Date.now() + remaining * 1000;
-    running = true;
-    iv = setInterval(tick, 250);
-    drawClock();
-  }
-  function resetTimer() {
-    stopTick();
-    var sel = $('lenSel');
-    var m = sel ? parseInt(sel.value, 10) : 25;
-    total = (isNaN(m) ? 25 : m) * 60;
-    remaining = total;
-    drawClock();
-  }
-  on('tStart', 'click', startPause);
-  on('tReset', 'click', resetTimer);
-  on('lenSel', 'change', resetTimer);
-
-  /* ---------- init ---------- */
-  load();
-  var cd = $('calDate'); if (cd) cd.value = today();
-  resetTimer();
-  go(tab);
-})();
-</script>
-</body>
-</html>
+    function go(name) {
+      ['today', 'schedule', 'tasks', 'habits', 'notes', 'focus'].forEach(function (v) {
+        document.getElementById('view-' + v).style.display = (v === name) ? 'block' : 'none';
+        document.getEl
