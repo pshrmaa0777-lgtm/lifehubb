@@ -1,711 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LIFEHUB</title>
-  <style>
-    :root {
-      --bg: #0b0f17;
-      --surface: #131a26;
-      --surface-2: #1a2436;
-      --border: #253248;
-      --text: #f1f5f9;
-      --muted: #8b9bb4;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.14);
-      --success: #22c55e;
-      --danger: #fb7185;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding-bottom: 90px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .app {
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 20px 16px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logo {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--text);
-    }
-
-    .logo span {
-      color: var(--accent);
-    }
-
-    .date-label {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .greeting {
-      margin-bottom: 18px;
-    }
-
-    .greeting h1 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .greeting p {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .metric {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      text-align: left;
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    .metric:hover {
-      border-color: var(--accent);
-    }
-
-    .metric-val {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .metric-lbl {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 8px;
-    }
-
-    .panel-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .link-btn {
-      background: transparent;
-      border: none;
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      padding: 2px 4px;
-    }
-
-    .input-group {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-
-    .input-group input[type="text"] {
-      flex: 1;
-      min-width: 170px;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 11px 12px;
-      font-size: 14px;
-      outline: none;
-    }
-
-    input[type="date"], input[type="time"], select {
-      width: auto;
-      font-size: 13px;
-      padding: 10px;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 76px;
-    }
-
-    .btn {
-      background: var(--accent);
-      color: #061018;
-      border: none;
-      border-radius: 10px;
-      padding: 0 16px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      height: 42px;
-    }
-
-    .btn-secondary {
-      background: var(--surface-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-sm {
-      height: 32px;
-      padding: 0 10px;
-      font-size: 12px;
-      border-radius: 8px;
-      background: var(--surface-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      cursor: pointer;
-    }
-
-    .btn-sm.done {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-      border-color: rgba(34, 197, 94, 0.35);
-    }
-
-    .list-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .list-row:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .row-main {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .row-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .checkbox {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-
-    .item-text {
-      font-size: 14px;
-      word-break: break-word;
-    }
-
-    .item-text.completed {
-      text-decoration: line-through;
-      color: var(--muted);
-    }
-
-    .badge {
-      font-size: 11px;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-weight: 600;
-    }
-
-    .small-btn {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 12px;
-      cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 6px;
-    }
-
-    .del-btn:hover {
-      color: var(--danger);
-    }
-
-    .note-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-
-    .note-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .note-body {
-      font-size: 13px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .timer-box {
-      text-align: center;
-      padding: 12px 0 6px;
-    }
-
-    .timer-display {
-      font-size: 40px;
-      font-weight: 700;
-      margin: 10px 0 14px;
-    }
-
-    .timer-controls {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .empty-state {
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      padding: 18px 8px;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #0b0f17;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 4px;
-      overflow-x: auto;
-      z-index: 50;
-    }
-
-    .nav-item {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 500;
-      padding: 8px 9px;
-      border-radius: 10px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .nav-item.active {
-      color: var(--accent);
-      background: var(--accent-soft);
-      font-weight: 600;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LIFEHUB</title>
+<style>
+:root{--bg:#0b0f17;--card:#131a26;--card2:#1a2333;--accent:#38bdf8;--text:#e6edf6;--muted:#8394ab;--line:#22304a;--danger:#f87171;--ok:#34d399}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;padding:max(16px,env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto}
+header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+.logo{font-weight:800;letter-spacing:.14em;color:var(--accent);font-size:1.1rem}
+#dateLabel{color:var(--muted);font-size:.9rem}
+.view{display:none}
+.view.active{display:block}
+h2{font-size:1.15rem;margin:0 0 12px}
+h3{font-size:.95rem;margin:20px 0 8px;color:var(--muted);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;color:var(--text);cursor:pointer;font:inherit}
+.stat:hover,.stat:focus-visible{border-color:var(--accent);outline:none}
+.stat b{display:block;font-size:1.8rem;color:var(--accent)}
+.stat span{color:var(--muted);font-size:.85rem}
+.row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+input[type=text],input[type=date],input[type=time],select,textarea{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit;min-width:0}
+input[type=text]{flex:1}
+textarea{width:100%;min-height:90px;resize:vertical;margin-bottom:8px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--accent);color:#04202e;border:0;border-radius:10px;padding:10px 16px;font-weight:700}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line);font-weight:600}
+.btn.sm{padding:6px 10px;font-size:.8rem;border-radius:8px}
+.btn.del{background:transparent;color:var(--danger);border:1px solid var(--line)}
+.item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.item .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+.item.done .txt{text-decoration:line-through;color:var(--muted)}
+.item input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.time{color:var(--accent);font-variant-numeric:tabular-nums;font-size:.85rem;flex:none}
+.badge{background:var(--card2);color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:700;flex:none}
+.empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.note p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.note .meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.8rem}
+.timer{text-align:center;padding:24px 14px}
+#clock{font-size:4rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em;margin:14px 0}
+.timer .row{justify-content:center}
+.done-count{color:var(--muted)}
+.done-count b{color:var(--ok)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--muted);padding:8px 2px;font-size:.72rem;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ic{font-size:1.2rem;line-height:1}
+nav button.active{color:var(--accent);background:var(--card2)}
+@media (prefers-reduced-motion:no-preference){.view.active{animation:fade .18s ease-out}@keyframes fade{from{opacity:0}to{opacity:1}}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="top-bar">
-      <div class="logo">LIFE<span>HUB</span></div>
-      <div class="date-label" id="dateDisplay"></div>
+<main>
+  <header><div class="logo">LIFEHUB</div><div id="dateLabel"></div></header>
+
+  <section class="view active" id="view-today" data-view="today">
+    <div class="grid">
+      <button class="stat" data-goto="tasks"><b id="sTasks">0</b><span>Pending tasks</span></button>
+      <button class="stat" data-goto="calendar"><b id="sSched">0</b><span>Scheduled today</span></button>
+      <button class="stat" data-goto="habits"><b id="sHabits">0/0</b><span>Habits done</span></button>
+      <button class="stat" data-goto="notes"><b id="sNotes">0</b><span>Saved notes</span></button>
     </div>
+    <h3>Today's schedule</h3>
+    <div id="todaySched"></div>
+    <h3>Up next</h3>
+    <div id="upNext"></div>
+  </section>
 
-    <!-- TODAY -->
-    <section id="sec-today">
-      <div class="greeting">
-        <h1>Today</h1>
-        <p>Your daily tasks, schedule, habits, and focus in one calm space.</p>
-      </div>
+  <section class="view" id="view-calendar" data-view="calendar">
+    <h2>Calendar</h2>
+    <div class="row">
+      <input type="date" id="calDate" aria-label="Date">
+      <input type="time" id="calTime" aria-label="Time">
+    </div>
+    <div class="row">
+      <input type="text" id="calTitle" placeholder="Event title" maxlength="120" aria-label="Event title">
+      <button class="btn" id="calAdd">Schedule</button>
+    </div>
+    <div id="calList"></div>
+  </section>
 
-      <div class="metrics">
-        <button type="button" class="metric" onclick="showSection('tasks')">
-          <div class="metric-val" id="mTasks">0</div>
-          <div class="metric-lbl">Pending Tasks</div>
-        </button>
-        <button type="button" class="metric" onclick="showSection('schedule')">
-          <div class="metric-val" id="mSchedule">0</div>
-          <div class="metric-lbl">Scheduled Today</div>
-        </button>
-        <button type="button" class="metric" onclick="showSection('habits')">
-          <div class="metric-val" id="mHabits">0/0</div>
-          <div class="metric-lbl">Habits Done</div>
-        </button>
-        <button type="button" class="metric" onclick="showSection('notes')">
-          <div class="metric-val" id="mNotes">0</div>
-          <div class="metric-lbl">Saved Notes</div>
-        </button>
-      </div>
+  <section class="view" id="view-tasks" data-view="tasks">
+    <h2>Tasks</h2>
+    <div class="row">
+      <input type="text" id="taskInput" placeholder="Add a task" maxlength="160" aria-label="New task">
+      <button class="btn" id="taskAdd">Add task</button>
+    </div>
+    <div id="taskList"></div>
+  </section>
 
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Today's Schedule</div>
-          <button type="button" class="link-btn" onclick="showSection('schedule')">Open Calendar</button>
-        </div>
-        <div id="todaySchedule"></div>
-      </div>
+  <section class="view" id="view-habits" data-view="habits">
+    <h2>Habits</h2>
+    <div class="row">
+      <input type="text" id="habitInput" placeholder="Add a habit" maxlength="80" aria-label="New habit">
+      <button class="btn" id="habitAdd">Add habit</button>
+    </div>
+    <div id="habitList"></div>
+  </section>
 
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Up Next</div>
-          <button type="button" class="link-btn" onclick="showSection('tasks')">All Tasks</button>
-        </div>
-        <div id="todayTasks"></div>
-      </div>
-    </section>
+  <section class="view" id="view-notes" data-view="notes">
+    <h2>Notes</h2>
+    <textarea id="noteInput" placeholder="Write a note" maxlength="2000" aria-label="New note"></textarea>
+    <div class="row"><button class="btn" id="noteAdd">Save note</button></div>
+    <div id="noteList"></div>
+  </section>
 
-    <!-- CALENDAR & SCHEDULING -->
-    <section id="sec-schedule" style="display:none;">
-      <div class="greeting">
-        <h1>Calendar & Schedule</h1>
-        <p>Pick a date and plan your time slots clearly.</p>
+  <section class="view" id="view-focus" data-view="focus">
+    <h2>Focus</h2>
+    <div class="card timer">
+      <select id="lenSel" aria-label="Session length">
+        <option value="25">25 min Focus</option>
+        <option value="50">50 min Deep Work</option>
+        <option value="5">5 min Break</option>
+      </select>
+      <div id="clock">25:00</div>
+      <div class="row">
+        <button class="btn" id="tStart">Start</button>
+        <button class="btn ghost" id="tReset">Reset</button>
       </div>
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Selected Date</div>
-          <input id="calDate" type="date" onchange="drawApp()" />
-        </div>
-        <div class="input-group">
-          <input id="schedTime" type="time" value="09:00" />
-          <input id="schedTitle" type="text" placeholder="What is scheduled?" onkeydown="if(event.key==='Enter') addSched()" />
-          <button type="button" class="btn" onclick="addSched()">Schedule</button>
-        </div>
-        <div id="scheduleList"></div>
-      </div>
-    </section>
+      <div class="done-count">Focus sessions completed today: <b id="sessCount">0</b></div>
+    </div>
+  </section>
+</main>
 
-    <!-- TASKS -->
-    <section id="sec-tasks" style="display:none;">
-      <div class="greeting">
-        <h1>Tasks</h1>
-        <p>Keep track of what matters today.</p>
-      </div>
-      <div class="panel">
-        <div class="input-group">
-          <input id="taskField" type="text" placeholder="What needs to get done?" onkeydown="if(event.key==='Enter') addTsk()" />
-          <button type="button" class="btn" onclick="addTsk()">Add</button>
-        </div>
-        <div id="allTasks"></div>
-      </div>
-    </section>
+<nav id="nav" aria-label="Main">
+  <button data-tab="today" class="active"><span class="ic">&#9673;</span>Today</button>
+  <button data-tab="calendar"><span class="ic">&#9638;</span>Calendar</button>
+  <button data-tab="tasks"><span class="ic">&#10003;</span>Tasks</button>
+  <button data-tab="habits"><span class="ic">&#8635;</span>Habits</button>
+  <button data-tab="notes"><span class="ic">&#9998;</span>Notes</button>
+  <button data-tab="focus"><span class="ic">&#9201;</span>Focus</button>
+</nav>
 
-    <!-- HABITS -->
-    <section id="sec-habits" style="display:none;">
-      <div class="greeting">
-        <h1>Habits</h1>
-        <p>Build steady daily consistency.</p>
-      </div>
-      <div class="panel">
-        <div class="input-group">
-          <input id="habitField" type="text" placeholder="Add a daily habit..." onkeydown="if(event.key==='Enter') addHab()" />
-          <button type="button" class="btn" onclick="addHab()">Add</button>
-        </div>
-        <div id="allHabits"></div>
-      </div>
-    </section>
+<script>
+(function () {
+  'use strict';
+  var KEY = 'lifehub_v4';
+  var state = { tasks: [], events: [], habits: [], notes: [], sessions: {} };
+  var tab = 'today';
 
-    <!-- NOTES -->
-    <section id="sec-notes" style="display:none;">
-      <div class="greeting">
-        <h1>Notes</h1>
-        <p>Capture quick thoughts and key details.</p>
-      </div>
-      <div class="panel">
-        <textarea id="noteField" placeholder="Write a quick note..."></textarea>
-        <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-          <button type="button" class="btn" onclick="addNt()">Save Note</button>
-        </div>
-        <div id="allNotes"></div>
-      </div>
-    </section>
-
-    <!-- FOCUS TIMER -->
-    <section id="sec-focus" style="display:none;">
-      <div class="greeting">
-        <h1>Focus Timer</h1>
-        <p>Work in focused blocks without distraction.</p>
-      </div>
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Session Length</div>
-          <select id="focusMinutes" onchange="setFocusMins()">
-            <option value="25" selected>25 min Focus</option>
-            <option value="50">50 min Deep Work</option>
-            <option value="5">5 min Break</option>
-          </select>
-        </div>
-        <div class="timer-box">
-          <div class="date-label" id="focusStatus">Ready to start</div>
-          <div class="timer-display" id="timerDisplay">25:00</div>
-          <div class="timer-controls">
-            <button type="button" class="btn" id="startPauseBtn" onclick="runPauseTimer()">Start</button>
-            <button type="button" class="btn btn-secondary" onclick="resetFocTimer()">Reset</button>
-          </div>
-          <div class="date-label" style="margin-top: 14px;">
-            Completed Focus Sessions Today: <strong id="focusCount">0</strong>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <nav class="bottom-nav">
-    <button type="button" class="nav-item active" id="nav-today" onclick="showSection('today')">Today</button>
-    <button type="button" class="nav-item" id="nav-schedule" onclick="showSection('schedule')">Calendar</button>
-    <button type="button" class="nav-item" id="nav-tasks" onclick="showSection('tasks')">Tasks</button>
-    <button type="button" class="nav-item" id="nav-habits" onclick="showSection('habits')">Habits</button>
-    <button type="button" class="nav-item" id="nav-notes" onclick="showSection('notes')">Notes</button>
-    <button type="button" class="nav-item" id="nav-focus" onclick="showSection('focus')">Focus</button>
-  </nav>
-
-  <script>
-    const STORE_KEY = 'lifehub_v4';
-    const dNow = new Date();
-    const todayStr = dNow.getFullYear() + '-' + String(dNow.getMonth() + 1).padStart(2, '0') + '-' + String(dNow.getDate()).padStart(2, '0');
-
-    document.getElementById('dateDisplay').textContent = dNow.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
+  function $(id) { return document.getElementById(id); }
+  function arr(v) { return Array.isArray(v) ? v : []; }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today() { return ymd(new Date()); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
-    document.getElementById('calDate').value = todayStr;
+  }
+  function setHTML(id, html) { var el = $(id); if (el) el.innerHTML = html; }
+  function setText(id, t) { var el = $(id); if (el) el.textContent = t; }
 
-    let appData = { tasks: [], habits: [], notes: [], schedules: [], focusToday: 0, focusDate: todayStr };
+  /* ---------- storage ---------- */
+  function load() {
     try {
-      const raw = JSON.parse(localStorage.getItem(STORE_KEY) || localStorage.getItem('lifehub_v3') || 'null');
-      if (raw && typeof raw === 'object') {
-        appData.tasks = Array.isArray(raw.tasks) ? raw.tasks : [];
-        appData.habits = Array.isArray(raw.habits) ? raw.habits : [];
-        appData.notes = Array.isArray(raw.notes) ? raw.notes : [];
-        appData.schedules = Array.isArray(raw.schedules) ? raw.schedules : [];
-        appData.focusDate = raw.focusDate || todayStr;
-        appData.focusToday = appData.focusDate === todayStr ? Number(raw.focusToday || 0) : 0;
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (!d || typeof d !== 'object') return;
+      state.tasks = arr(d.tasks).filter(function (t) { return t && typeof t.text === 'string'; });
+      state.events = arr(d.events).filter(function (e) { return e && typeof e.title === 'string'; });
+      state.habits = arr(d.habits).filter(function (h) { return h && typeof h.name === 'string'; })
+        .map(function (h) { h.dates = arr(h.dates); return h; });
+      state.notes = arr(d.notes).filter(function (n) { return n && typeof n.text === 'string'; });
+      state.sessions = (d.sessions && typeof d.sessions === 'object' && !Array.isArray(d.sessions)) ? d.sessions : {};
+    } catch (e) { /* ignore malformed or unavailable storage */ }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage full or blocked */ }
+  }
+
+  /* ---------- helpers ---------- */
+  function streak(h) {
+    var set = {}, i;
+    for (i = 0; i < h.dates.length; i++) set[h.dates[i]] = true;
+    var d = new Date();
+    if (!set[ymd(d)]) d.setDate(d.getDate() - 1);
+    var n = 0;
+    while (set[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function byTime(a, b) { return (a.time || '').localeCompare(b.time || ''); }
+  function eventsOn(date) { return state.events.filter(function (e) { return e.date === date; }).sort(byTime); }
+  function find(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
+  function remove(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) { list.splice(i, 1); return; } }
+
+  function eventRow(e) {
+    return '<div class="item' + (e.done ? ' done' : '') + '">' +
+      '<input type="checkbox" data-act="evt-toggle" data-id="' + esc(e.id) + '"' + (e.done ? ' checked' : '') + ' aria-label="Complete event">' +
+      '<span class="time">' + esc(e.time || '--:--') + '</span>' +
+      '<span class="txt">' + esc(e.title) + '</span>' +
+      '<button class="btn sm del" data-act="evt-del" data-id="' + esc(e.id) + '">Delete</button></div>';
+  }
+  function taskRow(t, full) {
+    return '<div class="item' + (t.done ? ' done' : '') + '">' +
+      '<input type="checkbox" data-act="task-toggle" data-id="' + esc(t.id) + '"' + (t.done ? ' checked' : '') + ' aria-label="Complete task">' +
+      '<span class="txt">' + esc(t.text) + '</span>' +
+      (full ? '<button class="btn sm ghost" data-act="task-edit" data-id="' + esc(t.id) + '">Edit</button>' +
+        '<button class="btn sm del" data-act="task-del" data-id="' + esc(t.id) + '">Delete</button>' : '') + '</div>';
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    var td = today();
+    var d = new Date();
+    setText('dateLabel', d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }));
+
+    var pending = state.tasks.filter(function (t) { return !t.done; });
+    var todayEvents = eventsOn(td);
+    var doneHabits = state.habits.filter(function (h) { return h.dates.indexOf(td) !== -1; }).length;
+
+    setText('sTasks', String(pending.length));
+    setText('sSched', String(todayEvents.length));
+    setText('sHabits', doneHabits + '/' + state.habits.length);
+    setText('sNotes', String(state.notes.length));
+    setHTML('todaySched', todayEvents.length ? todayEvents.map(eventRow).join('') : '<div class="empty">Nothing scheduled today.</div>');
+    setHTML('upNext', pending.length ? pending.slice(0, 5).map(function (t) { return taskRow(t, false); }).join('') : '<div class="empty">No pending tasks.</div>');
+
+    var cal = $('calDate');
+    var sel = cal && cal.value ? cal.value : td;
+    var list = eventsOn(sel);
+    setHTML('calList', list.length ? list.map(eventRow).join('') : '<div class="empty">No events on this date.</div>');
+
+    setHTML('taskList', state.tasks.length ? state.tasks.map(function (t) { return taskRow(t, true); }).join('') : '<div class="empty">No tasks yet. Add one above.</div>');
+
+    setHTML('habitList', state.habits.length ? state.habits.map(function (h) {
+      var done = h.dates.indexOf(td) !== -1;
+      return '<div class="item' + (done ? ' done' : '') + '">' +
+        '<span class="txt">' + esc(h.name) + '</span>' +
+        '<span class="badge">' + streak(h) + 'd</span>' +
+        '<button class="btn sm' + (done ? '' : ' ghost') + '" data-act="habit-toggle" data-id="' + esc(h.id) + '">' + (done ? 'Done' : 'Complete') + '</button>' +
+        '<button class="btn sm del" data-act="habit-del" data-id="' + esc(h.id) + '">Delete</button></div>';
+    }).join('') : '<div class="empty">No habits yet. Add one above.</div>');
+
+    setHTML('noteList', state.notes.length ? state.notes.map(function (n) {
+      var when = '';
+      try { when = new Date(n.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { when = ''; }
+      return '<div class="note"><p>' + esc(n.text) + '</p><div class="meta"><span>' + esc(when) + '</span>' +
+        '<button class="btn sm del" data-act="note-del" data-id="' + esc(n.id) + '">Delete</button></div></div>';
+    }).join('') : '<div class="empty">No notes saved yet.</div>');
+
+    setText('sessCount', String(state.sessions[td] || 0));
+  }
+
+  function commit() { save(); render(); }
+
+  function go(name) {
+    tab = name;
+    var views = document.querySelectorAll('.view');
+    for (var i = 0; i < views.length; i++) views[i].classList.toggle('active', views[i].getAttribute('data-view') === name);
+    var btns = document.querySelectorAll('#nav button');
+    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('active', btns[j].getAttribute('data-tab') === name);
+    window.scrollTo(0, 0);
+    render();
+  }
+
+  /* ---------- adders ---------- */
+  function addTask() {
+    var el = $('taskInput'); if (!el) return;
+    var v = el.value.trim(); if (!v) return;
+    state.tasks.push({ id: uid(), text: v, done: false });
+    el.value = ''; commit();
+  }
+  function addHabit() {
+    var el = $('habitInput'); if (!el) return;
+    var v = el.value.trim(); if (!v) return;
+    state.habits.push({ id: uid(), name: v, dates: [] });
+    el.value = ''; commit();
+  }
+  function addEvent() {
+    var dEl = $('calDate'), tEl = $('calTime'), nEl = $('calTitle');
+    if (!dEl || !tEl || !nEl) return;
+    var title = nEl.value.trim();
+    if (!title) { nEl.focus(); return; }
+    state.events.push({ id: uid(), date: dEl.value || today(), time: tEl.value || '', title: title, done: false });
+    nEl.value = ''; commit();
+  }
+  function addNote() {
+    var el = $('noteInput'); if (!el) return;
+    var v = el.value.trim(); if (!v) return;
+    state.notes.unshift({ id: uid(), text: v, ts: Date.now() });
+    el.value = ''; commit();
+  }
+
+  /* ---------- events ---------- */
+  function on(id, type, fn) { var el = $(id); if (el) el.addEventListener(type, fn); }
+  function onEnter(id, fn) { on(id, 'keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fn(); } }); }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var tabBtn = t.closest('[data-tab]');
+    if (tabBtn) { go(tabBtn.getAttribute('data-tab')); return; }
+    var goBtn = t.closest('[data-goto]');
+    if (goBtn) { go(goBtn.getAttribute('data-goto')); return; }
+    var a = t.closest('[data-act]');
+    if (!a) return;
+    var act = a.getAttribute('data-act'), id = a.getAttribute('data-id'), item;
+    if (act === 'task-toggle') { item = find(state.tasks, id); if (item) item.done = !item.done; }
+    else if (act === 'task-del') { remove(state.tasks, id); }
+    else if (act === 'task-edit') {
+      item = find(state.tasks, id);
+      if (item) {
+        var nv = window.prompt('Edit task', item.text);
+        if (nv !== null && nv.trim()) item.text = nv.trim();
       }
-    } catch (e) {}
-
-    function commitData() {
-      try {
-        localStorage.setItem(STORE_KEY, JSON.stringify(appData));
-      } catch (e) {}
-      drawApp();
     }
-
-    function showSection(name) {
-      const sections = ['today', 'schedule', 'tasks', 'habits', 'notes', 'focus'];
-      for (let i = 0; i < sections.length; i++) {
-        const s = sections[i];
-        const secEl = document.getElementById('sec-' + s);
-        const navEl = document.getElementById('nav-' + s);
-        if (secEl) secEl.style.display = (s === name) ? 'block' : 'none';
-        if (navEl) navEl.className = (s === name) ? 'nav-item active' : 'nav-item';
+    else if (act === 'evt-toggle') { item = find(state.events, id); if (item) item.done = !item.done; }
+    else if (act === 'evt-del') { remove(state.events, id); }
+    else if (act === 'habit-toggle') {
+      item = find(state.habits, id);
+      if (item) {
+        var td = today(), i = item.dates.indexOf(td);
+        if (i === -1) item.dates.push(td); else item.dates.splice(i, 1);
       }
     }
+    else if (act === 'habit-del') { remove(state.habits, id); }
+    else if (act === 'note-del') { remove(state.notes, id); }
+    else return;
+    commit();
+  });
 
-    function escText(str) {
-      return String(str || '').replace(/[&<>"']/g, function (ch) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-      });
+  on('taskAdd', 'click', addTask); onEnter('taskInput', addTask);
+  on('habitAdd', 'click', addHabit); onEnter('habitInput', addHabit);
+  on('calAdd', 'click', addEvent); onEnter('calTitle', addEvent);
+  on('noteAdd', 'click', addNote);
+  on('calDate', 'change', render);
+
+  /* ---------- focus timer ---------- */
+  var total = 25 * 60, remaining = total, running = false, endAt = 0, iv = null;
+
+  function fmt(s) { s = Math.max(0, s); return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+  function drawClock() {
+    setText('clock', fmt(remaining));
+    setText('tStart', running ? 'Pause' : (remaining < total && remaining > 0 ? 'Resume' : 'Start'));
+    document.title = running ? fmt(remaining) + ' · LIFEHUB' : 'LIFEHUB';
+  }
+  function stopTick() { if (iv) { clearInterval(iv); iv = null; } running = false; }
+  function tick() {
+    remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+    if (remaining <= 0) {
+      stopTick();
+      var mins = Math.round(total / 60);
+      if (mins !== 5) { var td = today(); state.sessions[td] = (state.sessions[td] || 0) + 1; save(); render(); }
+      remaining = total;
+      try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { /* ignore */ }
+      window.setTimeout(function () { window.alert(mins === 5 ? 'Break over.' : 'Session complete. Nice work.'); }, 50);
     }
+    drawClock();
+  }
+  function startPause() {
+    if (running) { stopTick(); drawClock(); return; }
+    if (remaining <= 0) remaining = total;
+    endAt = Date.now() + remaining * 1000;
+    running = true;
+    iv = setInterval(tick, 250);
+    drawClock();
+  }
+  function resetTimer() {
+    stopTick();
+    var sel = $('lenSel');
+    var m = sel ? parseInt(sel.value, 10) : 25;
+    total = (isNaN(m) ? 25 : m) * 60;
+    remaining = total;
+    drawClock();
+  }
+  on('tStart', 'click', startPause);
+  on('tReset', 'click', resetTimer);
+  on('lenSel', 'change', resetTimer);
 
-    function addSched() {
-      const dateVal = document.getElementById('calDate').value || todayStr;
-      const timeVal = document.getElementById('schedTime').value || '09:00';
-      const titleEl = document.getElementById('schedTitle');
-      const titleVal = titleEl.value.trim();
-      if (!titleVal) return;
-      appData.schedules.push({ id: Date.now(), date: dateVal, time: timeVal, title: titleVal, done: false });
-      appData.schedules.sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); });
-      titleEl.value = '';
-      commitData();
-    }
-
-    function toggleSched(id) {
-      const item = appData.schedules.find(function (x) { return x.id === id; });
-      if (item) { item.done = !item.done; commitData(); }
-    }
-
-    function delSched(id) {
-      appData.schedules = appData.schedules.filter(function (x) { return x.id !== id; });
-      commitData();
-    }
-
-    function addTsk() {
-      const el = document.getElementById('taskField');
-      const val = el.value.trim();
-      if (!val) return;
-      appData.tasks.unshift({ id: Date.now(), title: val, done: false });
-      el.value = '';
-      commitData();
-    }
-
-    function editTsk(id) {
-      const item = appData.tasks.find(function (x) { return x.id === id; });
-      if (!item) return;
-      const next = prompt('Edit task:', item.title);
-      if (next && next.trim()) { item.title = next.trim(); commitData(); }
-    }
-
-    function toggleTsk(id) {
-      const item = appData.tasks.find(function (x) { return x.id === id; });
-      if (item) { item.done = !item.done; commitData(); }
-    }
-
-    function delTsk(id) {
-      appData.tasks = appData.tasks.filter(function (x) { return x.id !== id; });
-      commitData();
-    }
-
-    function addHab() {
-      const el = document.getElementById('habitField');
-      const val = el.value.trim();
-      if (!val) return;
-      appData.habits.unshift({ id: Date.now(), name: val, dates: [] });
-      el.value = '';
-      commitData();
-    }
-
-    function toggleHab(id) {
-      const item = appData.habits.find(function (x) { return x.id === id; });
-      if (!item) return;
-      const list = Array.isArray(item.dates) ? item.dates : [];
-      if (list.indexOf(todayStr) > -1) {
-        item.dates = list.filter(function (d) { return d !== todayStr; });
-      } else {
-        item.dates = list.concat(todayStr);
-      }
-      commitData();
-    }
-
-    function delHab(id) {
-      appData.habits = appData.habits.filter(function (x) { return x.id !== id; });
-      commitData();
-    }
-
-    function addNt() {
-      const el = document.getElementById('noteField');
-      const val = el.value.trim();
-      if (!val) return;
-      appData.notes.unshift({
-        id: Date.now(),
-        body: val,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-      el.value = '';
-      commitData();
-    }
-
-    function delNt(id) {
-      appData.notes = appData.notes.filter(function (x) { return x.id !== id; });
-      commitData();
-    }
-
-    let secRemaining = 25 * 60;
-    let tickRef = null;
-
-    function drawTimer() {
-      const mm = String(Math.floor(secRemaining / 60)).padStart(2, '0');
-      const ss = String(secRemaining % 60).padStart(2, '0');
-      document.getElementById('timerDisplay').textContent = mm + ':' + ss;
-      document.getElementById('startPauseBtn').textContent = tickRef ? 'Pause' : 'Start';
-      document.getElementById('focusCount').textContent = String(appData.focusToday || 0);
-    }
-
-    function setFocusMins() {
-      if (tickRef) { clearInterval(tickRef); tickRef = null; }
-      const mins = Number(document.getElementById('focusMinutes').value) || 25;
-      secRemaining = mins * 60;
-      document.getElementById('focusStatus').textContent = 'Ready to start';
-      drawTimer();
-    }
-
-    function runPauseTimer() {
-      if (tickRef) {
-        clearInterval(tickRef);
-        tickRef = null;
-        document.getElementById('focusStatus').textContent = 'Paused';
-        drawTimer();
-        return;
-      }
-      document.getElementById('focusStatus').textContent = 'Focusing...';
-      drawTimer();
-      tickRef = setInterval(function () {
-        secRemaining -= 1;
-        if (secRemaining <= 0) {
-          clearInterval(tickRef);
-          tickRef = null;
-          const mode = document.getElementById('focusMinutes').value;
-          if (mode !== '5') {
-            appData.focusDate = todayStr;
-            appData.focusToday = Number(appData.focusToday || 0) + 1;
-            commitData();
-          }
-          secRemaining = (Number(mode) || 25) * 60;
-          document.getElementById('focusStatus').textContent = 'Session complete';
-        }
-        drawTimer();
-      }, 1000);
-    }
-
-    function resetFocTimer() {
+  /* ---------- init ---------- */
+  load();
+  var cd = $('calDate'); if (cd) cd.value = today();
+  resetTimer();
+  go(tab);
+})();
+</script>
+</body>
+</html>
