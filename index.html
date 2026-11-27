@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIFEHUB — Personal Life Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; min-height: 100vh; padding-bottom: 84px; }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .brand { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8; }
+    .date { font-size: 13px; color: #94a3b8; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+    .card-title { font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .stat { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 12px; text-align: center; }
+    .stat-num { font-size: 20px; font-weight: 700; color: #38bdf8; }
+    .stat-label { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .row { display: flex; gap: 8px; margin-bottom: 12px; }
+    input, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; color: #f8fafc; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; }
+    input:focus, textarea:focus { border-color: #38bdf8; }
+    button { background: #0284c7; color: white; border: none; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    button:active { transform: scale(0.98); }
+    .item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid #293548; }
+    .item:last-child { border-bottom: none; }
+    .item-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .done { text-decoration: line-through; color: #64748b; }
+    .del { background: transparent; color: #f87171; padding: 4px 8px; font-size: 13px; }
+    .habit-btn { background: #334155; color: #e2e8f0; padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    .habit-btn.active { background: #16a34a; color: #fff; }
+    .note-box { background: #0f172a; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 13px; color: #e2e8f0; line-height: 1.45; position: relative; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 4px; }
+    .nav-btn { background: transparent; color: #94a3b8; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; padding: 6px 10px; }
+    .nav-btn.active { color: #38bdf8; }
+    .empty { font-size: 13px; color: #64748b; text-align: center; padding: 14px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">LIFEHUB</div>
+      <div class="date" id="todayDate"></div>
+    </div>
+
+    <!-- TODAY DASHBOARD -->
+    <div id="view-today" class="view active">
+      <div class="card">
+        <div class="card-title">Today's Focus</div>
+        <div style="font-size:16px;font-weight:600;">Welcome to your personal command center.</div>
+        <div style="font-size:13px;color:#94a3b8;margin-top:4px;">Tasks, habits, and quick notes in one place.</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num" id="statTasks">0</div><div class="stat-label">Open Tasks</div></div>
+        <div class="stat"><div class="stat-num" id="statHabits">0</div><div class="stat-label">Habits Today</div></div>
+        <div class="stat"><div class="stat-num" id="statNotes">0</div><div class="stat-label">Notes</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pending Tasks</div>
+        <div id="dashTaskList"></div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div id="view-tasks" class="view">
+      <div class="card">
+        <div class="card-title">Smart Tasks</div>
+        <div class="row">
+          <input id="taskInput" type="text" placeholder="Add a task..." />
+          <button onclick="addTask()">Add</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
+    </div>
+
+    <!-- HABITS -->
+    <div id="view-habits" class="view">
+      <div class="card">
+        <div class="card-title">Daily Habits</div>
+        <div class="row">
+          <input id="habitInput" type="text" placeholder="New habit (e.g. Read 20 mins)..." />
+          <button onclick="addHabit()">Add</button>
+        </div>
+        <div id="habitList"></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div id="view-notes" class="view">
+      <div class="card">
+        <div class="card-title">Quick Notes</div>
+        <textarea id="noteInput" rows="3" placeholder="Write a thought, link, or reminder..."></textarea>
+        <div style="margin-top:8px;text-align:right;">
+          <button onclick="addNote()">Save Note</button>
+        </div>
+        <div id="noteList" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" id="nav-today" onclick="switchView('today')"><span>Today</span></button>
+    <button class="nav-btn" id="nav-tasks" onclick="switchView('tasks')"><span>Tasks</span></button>
+    <button class="nav-btn" id="nav-habits" onclick="switchView('habits')"><span>Habits</span></button>
+    <button class="nav-btn" id="nav-notes" onclick="switchView('notes')"><span>Notes</span></button>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = 'lifehub_v1';
+    const todayStr = new Date().toISOString().slice(0, 10);
+    document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || {
+      tasks: [],
+      habits: [],
+      notes: []
+    };
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function switchView(name) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('view-' + name).classList.add('active');
+      document.getElementById('nav-' + name).classList.add('active');
+    }
+
+    function addTask() {
+      const el = document.getElementById('taskInput');
+      const text = el.value.trim();
+      if (!text) return;
+      state.tasks.unshift({ id: Date.now(), text, done: false });
+      el.value = '';
+      save();
+    }
+
+    function toggleTask(id) {
+      const t = state.tasks.find(x => x.id === id);
+      if (t) { t.done = !t.done; save(); }
+    }
+
+    function deleteTask(id) {
+      state.tasks = state.tasks.filter(x => x.id !== id);
+      save();
+    }
+
+    function addHabit() {
+      const el = document.getElementById('habitInput');
+      const name = el.value.trim();
+      if (!name) return;
+      state.habits.unshift({ id: Date.now(), name, completedDates: [] });
+      el.value = '';
+      save();
+    }
+
+    function toggleHabit(id) {
+      const h = state.habits.find(x => x.id === id);
+      if (!h) return;
+      if (h.completedDates.includes(todayStr)) {
+        h.completedDates = h.completedDates.filter(d => d !== todayStr);
+      } else {
+        h.completedDates.push(todayStr);
+      }
+      save();
+    }
+
+    function deleteHabit(id) {
+      state.habits = state.habits.filter(x => x.id !== id);
+      save();
+    }
+
+    function addNote() {
+      const el = document.getElementById('noteInput');
+      const text = el.value.trim();
+      if (!text) return;
+      state.notes.unshift({ id: Date.now(), text, createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+      el.value = '';
+      save();
+    }
+
+    function deleteNote(id) {
+      state.notes = state.notes.filter(x => x.id !== id);
+      save();
+    }
+
+    function render() {
+      const openTasks = state.tasks.filter(t => !t.done);
+      const habitsDoneToday = state.habits.filter(h => h.completedDates.includes(todayStr)).length;
+
+      document.getElementById('statTasks').textContent = openTasks.length;
+      document.getElementById('statHabits').textContent = `${habitsDoneToday}/${state.habits.length}`;
+      document.getElementById('statNotes').textContent = state.notes.length;
+
+      document.getElementById('dashTaskList').innerHTML = openTasks.length
+        ? openTasks.slice(0, 5).map(t => `<div class="item"><div class="item-left"><input type="checkbox" onclick="toggleTask(${t.id})" /><span>${escapeHtml(t.text)}</span></div></div>`).join('')
+        : `<div class="empty">No pending tasks for today.</div>`;
+
+      document.getElementById('taskList').innerHTML = state.tasks.length
+        ? state.tasks.map(t => `
+            <div class="item">
+              <div class="item-left">
+                <input type="checkbox" ${t.done ? 'checked' : ''} onclick="toggleTask(${t.id})" />
+                <span class="${t.done ? 'done' : ''}">${escapeHtml(t.text)}</span>
+              </div>
+              <button class="del" onclick="deleteTask(${t.id})">Delete</button>
+            </div>`).join('')
+        : `<div class="empty">Add your first task above.</div>`;
+
+      document.getElementById('habitList').innerHTML = state.habits.length
+        ? state.habits.map(h => {
+            const done = h.completedDates.includes(todayStr);
+            return `
+              <div class="item">
+                <div class="item-left">
+                  <button class="habit-btn ${done ? 'active' : ''}" onclick="toggleHabit(${h.id})">${done ? 'Done' : 'Mark Done'}</button>
+                  <span>${escapeHtml(h.name)}</span>
+                </div>
+                <button class="del" onclick="deleteHabit(${h.id})">Delete</button>
+              </div>`;
+          }).join('')
+        : `<div class="empty">No habits added yet.</div>`;
+
+      document.getElementById('noteList').innerHTML = state.notes.length
+        ? state.notes.map(n => `
+            <div class="note-box">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:11px;color:#94a3b8;">
+                <span>${n.createdAt}</span>
+                <button class="del" style="padding:0 4px;" onclick="deleteNote(${n.id})">Delete</button>
+              </div>
+              <div>${escapeHtml(n.text)}</div>
+            </div>`).join('')
+        : `<div class="empty">No notes saved yet.</div>`;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    render();
+  </script>
+</body>
+</html>
