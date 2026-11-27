@@ -11,12 +11,12 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 body{min-height:100vh;padding:max(16px,env(safe-area-inset-top)) 16px calc(86px + env(safe-area-inset-bottom))}
 main{max-width:640px;margin:0 auto}
-svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-0.2em}
+svg.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-0.2em;pointer-events:none}
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.14em;color:var(--accent);font-size:1.1rem}
 #dateLabel{color:var(--muted);font-size:.9rem}
-.view{display:none}
-.view.active{display:block}
+.section{display:none}
+.section.active{display:block}
 h2{font-size:1.15rem;margin:0 0 12px;display:flex;align-items:center;gap:8px}
 h3{font-size:.95rem;margin:20px 0 8px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
@@ -25,7 +25,8 @@ h3{font-size:.95rem;margin:20px 0 8px;color:var(--muted);font-weight:600;display
 .stat:hover,.stat:focus-visible{border-color:var(--accent);outline:none}
 .stat .si{color:var(--accent);font-size:1.3rem;display:block;margin-bottom:6px}
 .stat b{display:block;font-size:1.8rem;color:var(--text)}
-.stat span.l{color:var(--muted);font-size:.85rem}
+.stat .l{color:var(--muted);font-size:.85rem}
+.stat *{pointer-events:none}
 .row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 input[type=text],input[type=date],input[type=time],select,textarea{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit;min-width:0;color-scheme:dark}
 input[type=text]{flex:1}
@@ -54,14 +55,16 @@ button{font:inherit;cursor:pointer}
 .timer .row{justify-content:center}
 .done-count{color:var(--muted)}
 .done-count b{color:var(--ok)}
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:50}
 nav button{flex:1;background:none;border:0;color:var(--muted);padding:8px 2px;font-size:.7rem;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px}
 nav button svg.i{width:22px;height:22px}
 nav button.active{color:var(--accent);background:var(--card2)}
-@media (prefers-reduced-motion:no-preference){.view.active{animation:fade .18s ease-out}@keyframes fade{from{opacity:0}to{opacity:1}}}
+#errBox{display:none;position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:8px 12px;font-size:.8rem;z-index:100}
 </style>
 </head>
 <body>
+
+<div id="errBox"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
@@ -92,12 +95,12 @@ nav button.active{color:var(--accent);background:var(--card2)}
     <div id="dateLabel"></div>
   </header>
 
-  <section class="view active" id="view-today" data-view="today">
+  <section class="section active" id="sec-today">
     <div class="grid">
-      <button class="stat" data-goto="tasks"><span class="si"><svg class="i"><use href="#i-task"/></svg></span><b id="sTasks">0</b><span class="l">Pending tasks</span></button>
-      <button class="stat" data-goto="calendar"><span class="si"><svg class="i"><use href="#i-cal"/></svg></span><b id="sSched">0</b><span class="l">Scheduled today</span></button>
-      <button class="stat" data-goto="habits"><span class="si"><svg class="i"><use href="#i-habit"/></svg></span><b id="sHabits">0/0</b><span class="l">Habits done</span></button>
-      <button class="stat" data-goto="notes"><span class="si"><svg class="i"><use href="#i-note"/></svg></span><b id="sNotes">0</b><span class="l">Saved notes</span></button>
+      <button type="button" class="stat" data-goto="tasks"><span class="si"><svg class="i"><use href="#i-task"/></svg></span><b id="sTasks">0</b><span class="l">Pending tasks</span></button>
+      <button type="button" class="stat" data-goto="calendar"><span class="si"><svg class="i"><use href="#i-cal"/></svg></span><b id="sSched">0</b><span class="l">Scheduled today</span></button>
+      <button type="button" class="stat" data-goto="habits"><span class="si"><svg class="i"><use href="#i-habit"/></svg></span><b id="sHabits">0/0</b><span class="l">Habits done</span></button>
+      <button type="button" class="stat" data-goto="notes"><span class="si"><svg class="i"><use href="#i-note"/></svg></span><b id="sNotes">0</b><span class="l">Saved notes</span></button>
     </div>
     <h3><svg class="i"><use href="#i-clock"/></svg>Today's schedule</h3>
     <div id="todaySched"></div>
@@ -105,7 +108,7 @@ nav button.active{color:var(--accent);background:var(--card2)}
     <div id="upNext"></div>
   </section>
 
-  <section class="view" id="view-calendar" data-view="calendar">
+  <section class="section" id="sec-calendar">
     <h2><svg class="i"><use href="#i-cal"/></svg>Calendar</h2>
     <div class="row">
       <input type="date" id="calDate" aria-label="Date">
@@ -113,37 +116,37 @@ nav button.active{color:var(--accent);background:var(--card2)}
     </div>
     <div class="row">
       <input type="text" id="calTitle" placeholder="Event title" maxlength="120" aria-label="Event title">
-      <button class="btn" id="calAdd"><svg class="i"><use href="#i-plus"/></svg>Add</button>
+      <button type="button" class="btn" id="calAdd"><svg class="i"><use href="#i-plus"/></svg>Add</button>
     </div>
     <div id="calList"></div>
   </section>
 
-  <section class="view" id="view-tasks" data-view="tasks">
+  <section class="section" id="sec-tasks">
     <h2><svg class="i"><use href="#i-task"/></svg>Tasks</h2>
     <div class="row">
       <input type="text" id="taskInput" placeholder="Add a task" maxlength="160" aria-label="New task">
-      <button class="btn" id="taskAdd"><svg class="i"><use href="#i-plus"/></svg>Add</button>
+      <button type="button" class="btn" id="taskAdd"><svg class="i"><use href="#i-plus"/></svg>Add</button>
     </div>
     <div id="taskList"></div>
   </section>
 
-  <section class="view" id="view-habits" data-view="habits">
+  <section class="section" id="sec-habits">
     <h2><svg class="i"><use href="#i-habit"/></svg>Habits</h2>
     <div class="row">
       <input type="text" id="habitInput" placeholder="Add a habit" maxlength="80" aria-label="New habit">
-      <button class="btn" id="habitAdd"><svg class="i"><use href="#i-plus"/></svg>Add</button>
+      <button type="button" class="btn" id="habitAdd"><svg class="i"><use href="#i-plus"/></svg>Add</button>
     </div>
     <div id="habitList"></div>
   </section>
 
-  <section class="view" id="view-notes" data-view="notes">
+  <section class="section" id="sec-notes">
     <h2><svg class="i"><use href="#i-note"/></svg>Notes</h2>
     <textarea id="noteInput" placeholder="Write a note" maxlength="2000" aria-label="New note"></textarea>
-    <div class="row"><button class="btn" id="noteAdd"><svg class="i"><use href="#i-save"/></svg>Save</button></div>
+    <div class="row"><button type="button" class="btn" id="noteAdd"><svg class="i"><use href="#i-save"/></svg>Save</button></div>
     <div id="noteList"></div>
   </section>
 
-  <section class="view" id="view-focus" data-view="focus">
+  <section class="section" id="sec-focus">
     <h2><svg class="i"><use href="#i-timer"/></svg>Focus</h2>
     <div class="card timer">
       <select id="lenSel" aria-label="Session length">
@@ -153,8 +156,8 @@ nav button.active{color:var(--accent);background:var(--card2)}
       </select>
       <div id="clock">25:00</div>
       <div class="row">
-        <button class="btn" id="tStart"><svg class="i"><use href="#i-play"/></svg><span id="tStartLbl">Start</span></button>
-        <button class="btn ghost" id="tReset"><svg class="i"><use href="#i-reset"/></svg>Reset</button>
+        <button type="button" class="btn" id="tStart"><svg class="i"><use href="#i-play"/></svg><span id="tStartLbl">Start</span></button>
+        <button type="button" class="btn ghost" id="tReset"><svg class="i"><use href="#i-reset"/></svg>Reset</button>
       </div>
       <div class="done-count">Focus sessions completed today: <b id="sessCount">0</b></div>
     </div>
@@ -162,156 +165,156 @@ nav button.active{color:var(--accent);background:var(--card2)}
 </main>
 
 <nav id="nav" aria-label="Main">
-  <button data-tab="today" class="active"><svg class="i"><use href="#i-today"/></svg>Today</button>
-  <button data-tab="calendar"><svg class="i"><use href="#i-cal"/></svg>Calendar</button>
-  <button data-tab="tasks"><svg class="i"><use href="#i-task"/></svg>Tasks</button>
-  <button data-tab="habits"><svg class="i"><use href="#i-habit"/></svg>Habits</button>
-  <button data-tab="notes"><svg class="i"><use href="#i-note"/></svg>Notes</button>
-  <button data-tab="focus"><svg class="i"><use href="#i-timer"/></svg>Focus</button>
+  <button type="button" data-tab="today" class="active"><svg class="i"><use href="#i-today"/></svg>Today</button>
+  <button type="button" data-tab="calendar"><svg class="i"><use href="#i-cal"/></svg>Calendar</button>
+  <button type="button" data-tab="tasks"><svg class="i"><use href="#i-task"/></svg>Tasks</button>
+  <button type="button" data-tab="habits"><svg class="i"><use href="#i-habit"/></svg>Habits</button>
+  <button type="button" data-tab="notes"><svg class="i"><use href="#i-note"/></svg>Notes</button>
+  <button type="button" data-tab="focus"><svg class="i"><use href="#i-timer"/></svg>Focus</button>
 </nav>
 
 <script>
-(function () {
-  'use strict';
-  var KEY = 'lifehub_v4';
-  var state = { tasks: [], events: [], habits: [], notes: [], sessions: {} };
-  var editing = null; /* { kind: 'task' | 'note', id: string } */
+/* Show any JavaScript error on screen so problems are never silent. */
+window.onerror = function (msg, src, line) {
+  var b = document.getElementById('errBox');
+  if (b) { b.style.display = 'block'; b.textContent = 'Error: ' + msg + ' (line ' + line + ')'; }
+};
 
-  function $(id) { return document.getElementById(id); }
-  function arr(v) { return Array.isArray(v) ? v : []; }
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-  function today() { return ymd(new Date()); }
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-  function ic(name) { return '<svg class="i"><use href="#i-' + name + '"/></svg>'; }
-  function setHTML(id, html) { var el = $(id); if (el) el.innerHTML = html; }
-  function setText(id, t) { var el = $(id); if (el) el.textContent = t; }
+var KEY = 'lifehub_v5';
+var TABS = ['today', 'calendar', 'tasks', 'habits', 'notes', 'focus'];
+var state = { tasks: [], events: [], habits: [], notes: [], sessions: {} };
+var editing = null; /* object with kind ("task" or "note") and id */
 
-  /* ---------- storage ---------- */
-  function load() {
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (!raw) return;
-      var d = JSON.parse(raw);
-      if (!d || typeof d !== 'object') return;
-      state.tasks = arr(d.tasks).filter(function (t) { return t && typeof t.text === 'string' && t.id; });
-      state.events = arr(d.events).filter(function (e) { return e && typeof e.title === 'string' && e.id; });
-      state.habits = arr(d.habits).filter(function (h) { return h && typeof h.name === 'string' && h.id; })
-        .map(function (h) { h.dates = arr(h.dates); return h; });
-      state.notes = arr(d.notes).filter(function (n) { return n && typeof n.text === 'string' && n.id; });
-      state.sessions = (d.sessions && typeof d.sessions === 'object' && !Array.isArray(d.sessions)) ? d.sessions : {};
-    } catch (e) { /* malformed or unavailable storage: start empty */ }
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage full or blocked */ }
-  }
+function $(id) { return document.getElementById(id); }
+function arr(v) { return Array.isArray(v) ? v : []; }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function today() { return ymd(new Date()); }
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function ic(name) { return '<svg class="i"><use href="#i-' + name + '"/></svg>'; }
+function setHTML(id, html) { var el = $(id); if (el) el.innerHTML = html; }
+function setText(id, t) { var el = $(id); if (el) el.textContent = t; }
 
-  /* ---------- helpers ---------- */
-  function streak(h) {
-    var set = {}, i;
-    for (i = 0; i < h.dates.length; i++) set[h.dates[i]] = true;
-    var d = new Date();
-    if (!set[ymd(d)]) d.setDate(d.getDate() - 1);
-    var n = 0;
-    while (set[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
-    return n;
-  }
-  function byTime(a, b) { return (a.time || '').localeCompare(b.time || ''); }
-  function eventsOn(date) { return state.events.filter(function (e) { return e.date === date; }).sort(byTime); }
-  function find(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
-  function remove(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) { list.splice(i, 1); return; } }
-  function isEditing(kind, id) { return !!(editing && editing.kind === kind && editing.id === id); }
+/* ---------- storage ---------- */
+function loadState() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (!raw) return;
+    var d = JSON.parse(raw);
+    if (!d || typeof d !== 'object') return;
+    state.tasks = arr(d.tasks).filter(function (t) { return t && typeof t.text === 'string' && t.id; });
+    state.events = arr(d.events).filter(function (e) { return e && typeof e.title === 'string' && e.id; });
+    state.habits = arr(d.habits).filter(function (h) { return h && typeof h.name === 'string' && h.id; })
+      .map(function (h) { h.dates = arr(h.dates); return h; });
+    state.notes = arr(d.notes).filter(function (n) { return n && typeof n.text === 'string' && n.id; });
+    state.sessions = (d.sessions && typeof d.sessions === 'object' && !Array.isArray(d.sessions)) ? d.sessions : {};
+  } catch (e) { /* malformed or blocked storage: start empty */ }
+}
+function saveState() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage full or blocked */ }
+}
 
-  function eventRow(e) {
-    return '<div class="item' + (e.done ? ' done' : '') + '">' +
-      '<input type="checkbox" data-act="evt-toggle" data-id="' + esc(e.id) + '"' + (e.done ? ' checked' : '') + ' aria-label="Mark event complete">' +
-      '<span class="time">' + ic('clock') + esc(e.time || '--:--') + '</span>' +
-      '<span class="txt">' + esc(e.title) + '</span>' +
-      '<button class="btn sm del" data-act="evt-del" data-id="' + esc(e.id) + '" aria-label="Delete event">' + ic('trash') + 'Delete</button></div>';
+/* ---------- helpers ---------- */
+function streak(h) {
+  var set = {}, i;
+  for (i = 0; i < h.dates.length; i++) set[h.dates[i]] = true;
+  var d = new Date();
+  if (!set[ymd(d)]) d.setDate(d.getDate() - 1);
+  var n = 0;
+  while (set[ymd(d)]) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function byTime(a, b) { return (a.time || '').localeCompare(b.time || ''); }
+function eventsOn(date) { return state.events.filter(function (e) { return e.date === date; }).sort(byTime); }
+function findById(list, id) { for (var i = 0; i < list.length; i++) { if (list[i].id === id) return list[i]; } return null; }
+function removeById(list, id) { for (var i = 0; i < list.length; i++) { if (list[i].id === id) { list.splice(i, 1); return; } } }
+function isEditing(kind, id) { return !!(editing && editing.kind === kind && editing.id === id); }
+
+/* ---------- row templates ---------- */
+function eventRow(e) {
+  return '<div class="item' + (e.done ? ' done' : '') + '">' +
+    '<input type="checkbox" data-act="evt-toggle" data-id="' + esc(e.id) + '"' + (e.done ? ' checked' : '') + ' aria-label="Mark event complete">' +
+    '<span class="time">' + ic('clock') + esc(e.time || '--:--') + '</span>' +
+    '<span class="txt">' + esc(e.title) + '</span>' +
+    '<button type="button" class="btn sm del" data-act="evt-del" data-id="' + esc(e.id) + '">' + ic('trash') + 'Delete</button></div>';
+}
+function taskRow(t, full) {
+  if (full && isEditing('task', t.id)) {
+    return '<div class="item"><input type="text" data-edit-input value="' + esc(t.text) + '" maxlength="160" aria-label="Edit task">' +
+      '<button type="button" class="btn sm" data-act="task-save" data-id="' + esc(t.id) + '">' + ic('check') + 'Save</button>' +
+      '<button type="button" class="btn sm ghost" data-act="edit-cancel">' + ic('x') + '</button></div>';
   }
-  function taskRow(t, full) {
-    if (full && isEditing('task', t.id)) {
-      return '<div class="item"><input type="text" data-edit-input value="' + esc(t.text) + '" maxlength="160" aria-label="Edit task">' +
-        '<button class="btn sm" data-act="task-save" data-id="' + esc(t.id) + '" aria-label="Save task">' + ic('check') + '</button>' +
-        '<button class="btn sm ghost" data-act="edit-cancel" aria-label="Cancel edit">' + ic('x') + '</button></div>';
+  return '<div class="item' + (t.done ? ' done' : '') + '">' +
+    '<input type="checkbox" data-act="task-toggle" data-id="' + esc(t.id) + '"' + (t.done ? ' checked' : '') + ' aria-label="Mark task complete">' +
+    '<span class="txt">' + esc(t.text) + '</span>' +
+    (full ? '<button type="button" class="btn sm ghost" data-act="task-edit" data-id="' + esc(t.id) + '">' + ic('edit') + 'Edit</button>' +
+      '<button type="button" class="btn sm del" data-act="task-del" data-id="' + esc(t.id) + '">' + ic('trash') + 'Delete</button>' : '') + '</div>';
+}
+function habitRow(h, td) {
+  var done = h.dates.indexOf(td) !== -1;
+  return '<div class="item' + (done ? ' done' : '') + '">' +
+    '<span class="txt">' + esc(h.name) + '</span>' +
+    '<span class="badge">' + ic('flame') + streak(h) + 'd</span>' +
+    '<button type="button" class="btn sm' + (done ? '' : ' ghost') + '" data-act="habit-toggle" data-id="' + esc(h.id) + '">' + ic('check') + (done ? 'Done' : 'Complete') + '</button>' +
+    '<button type="button" class="btn sm del" data-act="habit-del" data-id="' + esc(h.id) + '">' + ic('trash') + 'Delete</button></div>';
+}
+function noteRow(n) {
+  if (isEditing('note', n.id)) {
+    return '<div class="note"><textarea data-edit-input maxlength="2000" aria-label="Edit note">' + esc(n.text) + '</textarea>' +
+      '<div class="acts"><button type="button" class="btn sm" data-act="note-save" data-id="' + esc(n.id) + '">' + ic('check') + 'Save</button>' +
+      '<button type="button" class="btn sm ghost" data-act="edit-cancel">' + ic('x') + 'Cancel</button></div></div>';
+  }
+  var when = '';
+  try { when = new Date(n.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { when = ''; }
+  if (n.edited) when += ' (edited)';
+  return '<div class="note"><p>' + esc(n.text) + '</p><div class="meta"><span>' + esc(when) + '</span><span class="acts">' +
+    '<button type="button" class="btn sm ghost" data-act="note-edit" data-id="' + esc(n.id) + '">' + ic('edit') + 'Edit</button>' +
+    '<button type="button" class="btn sm del" data-act="note-del" data-id="' + esc(n.id) + '">' + ic('trash') + 'Delete</button></span></div></div>';
+}
+
+/* ---------- render ---------- */
+function render() {
+  var td = today();
+  setText('dateLabel', new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }));
+
+  var pending = state.tasks.filter(function (t) { return !t.done; });
+  var todayEvents = eventsOn(td);
+  var doneHabits = state.habits.filter(function (h) { return h.dates.indexOf(td) !== -1; }).length;
+
+  setText('sTasks', String(pending.length));
+  setText('sSched', String(todayEvents.length));
+  setText('sHabits', doneHabits + '/' + state.habits.length);
+  setText('sNotes', String(state.notes.length));
+
+  setHTML('todaySched', todayEvents.length ? todayEvents.map(eventRow).join('') : '<div class="empty">Nothing scheduled today.</div>');
+  setHTML('upNext', pending.length ? pending.slice(0, 5).map(function (t) { return taskRow(t, false); }).join('') : '<div class="empty">No pending tasks.</div>');
+
+  var cal = $('calDate');
+  var picked = (cal && cal.value) ? cal.value : td;
+  var dayEvents = eventsOn(picked);
+  setHTML('calList', dayEvents.length ? dayEvents.map(eventRow).join('') : '<div class="empty">No events on this date.</div>');
+
+  setHTML('taskList', state.tasks.length ? state.tasks.map(function (t) { return taskRow(t, true); }).join('') : '<div class="empty">No tasks yet. Add one above.</div>');
+  setHTML('habitList', state.habits.length ? state.habits.map(function (h) { return habitRow(h, td); }).join('') : '<div class="empty">No habits yet. Add one above.</div>');
+  setHTML('noteList', state.notes.length ? state.notes.map(noteRow).join('') : '<div class="empty">No notes saved yet.</div>');
+
+  setText('sessCount', String(state.sessions[td] || 0));
+
+  if (editing) {
+    var inp = document.querySelector('[data-edit-input]');
+    if (inp) {
+      inp.focus();
+      try { var len = inp.value.length; inp.setSelectionRange(len, len); } catch (e) { /* ignore */ }
     }
-    return '<div class="item' + (t.done ? ' done' : '') + '">' +
-      '<input type="checkbox" data-act="task-toggle" data-id="' + esc(t.id) + '"' + (t.done ? ' checked' : '') + ' aria-label="Mark task complete">' +
-      '<span class="txt">' + esc(t.text) + '</span>' +
-      (full ? '<button class="btn sm ghost" data-act="task-edit" data-id="' + esc(t.id) + '" aria-label="Edit task">' + ic('edit') + 'Edit</button>' +
-        '<button class="btn sm del" data-act="task-del" data-id="' + esc(t.id) + '" aria-label="Delete task">' + ic('trash') + 'Delete</button>' : '') + '</div>';
   }
-  function noteRow(n) {
-    if (isEditing('note', n.id)) {
-      return '<div class="note"><textarea data-edit-input maxlength="2000" aria-label="Edit note">' + esc(n.text) + '</textarea>' +
-        '<div class="acts"><button class="btn sm" data-act="note-save" data-id="' + esc(n.id) + '">' + ic('check') + 'Save</button>' +
-        '<button class="btn sm ghost" data-act="edit-cancel">' + ic('x') + 'Cancel</button></div></div>';
-    }
-    var when = '';
-    try { when = new Date(n.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { when = ''; }
-    if (n.edited) when += ' (edited)';
-    return '<div class="note"><p>' + esc(n.text) + '</p><div class="meta"><span>' + esc(when) + '</span><span class="acts">' +
-      '<button class="btn sm ghost" data-act="note-edit" data-id="' + esc(n.id) + '" aria-label="Edit note">' + ic('edit') + 'Edit</button>' +
-      '<button class="btn sm del" data-act="note-del" data-id="' + esc(n.id) + '" aria-label="Delete note">' + ic('trash') + 'Delete</button></span></div></div>';
-  }
+}
+function commit() { saveState(); render(); }
 
-  /* ---------- render ---------- */
-  function render() {
-    var td = today();
-    setText('dateLabel', new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }));
-
-    var pending = state.tasks.filter(function (t) { return !t.done; });
-    var todayEvents = eventsOn(td);
-    var doneHabits = state.habits.filter(function (h) { return h.dates.indexOf(td) !== -1; }).length;
-
-    setText('sTasks', String(pending.length));
-    setText('sSched', String(todayEvents.length));
-    setText('sHabits', doneHabits + '/' + state.habits.length);
-    setText('sNotes', String(state.notes.length));
-    setHTML('todaySched', todayEvents.length ? todayEvents.map(eventRow).join('') : '<div class="empty">Nothing scheduled today.</div>');
-    setHTML('upNext', pending.length ? pending.slice(0, 5).map(function (t) { return taskRow(t, false); }).join('') : '<div class="empty">No pending tasks.</div>');
-
-    var cal = $('calDate');
-    var sel = cal && cal.value ? cal.value : td;
-    var list = eventsOn(sel);
-    setHTML('calList', list.length ? list.map(eventRow).join('') : '<div class="empty">No events on this date.</div>');
-
-    setHTML('taskList', state.tasks.length ? state.tasks.map(function (t) { return taskRow(t, true); }).join('') : '<div class="empty">No tasks yet. Add one above.</div>');
-
-    setHTML('habitList', state.habits.length ? state.habits.map(function (h) {
-      var done = h.dates.indexOf(td) !== -1;
-      return '<div class="item' + (done ? ' done' : '') + '">' +
-        '<span class="txt">' + esc(h.name) + '</span>' +
-        '<span class="badge">' + ic('flame') + streak(h) + 'd</span>' +
-        '<button class="btn sm' + (done ? '' : ' ghost') + '" data-act="habit-toggle" data-id="' + esc(h.id) + '">' + ic('check') + (done ? 'Done' : 'Complete') + '</button>' +
-        '<button class="btn sm del" data-act="habit-del" data-id="' + esc(h.id) + '" aria-label="Delete habit">' + ic('trash') + 'Delete</button></div>';
-    }).join('') : '<div class="empty">No habits yet. Add one above.</div>');
-
-    setHTML('noteList', state.notes.length ? state.notes.map(noteRow).join('') : '<div class="empty">No notes saved yet.</div>');
-
-    setText('sessCount', String(state.sessions[td] || 0));
-
-    if (editing) {
-      var inp = document.querySelector('[data-edit-input]');
-      if (inp) { inp.focus(); try { var l = inp.value.length; inp.setSelectionRange(l, l); } catch (e) { /* ignore */ } }
-    }
-  }
-  function commit() { save(); render(); }
-
-  /* ---------- navigation ---------- */
-  function go(name) {
-    editing = null;
-    var views = document.querySelectorAll('.view');
-    for (var i = 0; i < views.length; i++) views[i].classList.toggle('active', views[i].getAttribute('data-view') === name);
-    var btns = document.querySelectorAll('#nav button');
-    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('active', btns[j].getAttribute('data-tab') === name);
-    window.scrollTo(0, 0);
-    render();
-  }
-
-  /* ---------- adders ---------- */
+/* ---------- tab switching: one clear function ---------- */
+function showTab(name) {
+  if (TABS.indexOf(name) === -1) name = 'to
