@@ -81,7 +81,7 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin-bottom: 18px;
     }
@@ -93,18 +93,15 @@
       padding: 12px;
       text-align: left;
       color: var(--text);
-    }
-
-    .metric-clickable {
       cursor: pointer;
       transition: border-color 0.15s ease, transform 0.12s ease;
     }
 
-    .metric-clickable:hover {
+    .metric:hover {
       border-color: var(--accent);
     }
 
-    .metric-clickable:active {
+    .metric:active {
       transform: scale(0.98);
     }
 
@@ -285,21 +282,11 @@
       color: var(--muted);
     }
 
-    .time-badge {
+    .badge {
       font-size: 11px;
       color: var(--accent);
       background: var(--accent-soft);
       padding: 3px 8px;
-      border-radius: 999px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .streak-tag {
-      font-size: 11px;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 2px 7px;
       border-radius: 999px;
       font-weight: 600;
       flex-shrink: 0;
@@ -432,17 +419,21 @@
       </div>
 
       <div class="metrics">
-        <button type="button" class="metric metric-clickable" onclick="openTab('tasks')" title="View all tasks">
+        <button type="button" class="metric" onclick="openTab('tasks')">
           <div class="metric-val" id="mTasks">0</div>
           <div class="metric-lbl">Pending Tasks</div>
         </button>
-        <button type="button" class="metric metric-clickable" onclick="openTab('habits')" title="View habits">
+        <button type="button" class="metric" onclick="openTab('schedule')">
+          <div class="metric-val" id="mSchedule">0</div>
+          <div class="metric-lbl">Scheduled Today</div>
+        </button>
+        <button type="button" class="metric" onclick="openTab('habits')">
           <div class="metric-val" id="mHabits">0/0</div>
           <div class="metric-lbl">Habits Done</div>
         </button>
-        <button type="button" class="metric metric-clickable" onclick="openTab('schedule')" title="View today's schedule">
-          <div class="metric-val" id="mSchedule">0</div>
-          <div class="metric-lbl">Scheduled Today</div>
+        <button type="button" class="metric" onclick="openTab('notes')">
+          <div class="metric-val" id="mNotes">0</div>
+          <div class="metric-lbl">Saved Notes</div>
         </button>
       </div>
 
@@ -568,31 +559,42 @@
   </nav>
 
   <script>
-    const KEY = 'lifehub_v2';
+    const KEY = 'lifehub_v3';
     const todayISO = new Date().toISOString().slice(0, 10);
 
-    document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', {
+    function setElText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    function setElHTML(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = val;
+    }
+
+    setElText('dateDisplay', new Date().toLocaleDateString('en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric'
-    });
+    }));
 
     const calInput = document.getElementById('calDate');
-    calInput.value = todayISO;
+    if (calInput) calInput.value = todayISO;
 
-    let data;
+    let data = { tasks: [], habits: [], notes: [], schedules: [], focusSessions: {} };
     try {
-      const parsed = JSON.parse(localStorage.getItem(KEY) || 'null');
-      data = {
-        tasks: Array.isArray(parsed && parsed.tasks) ? parsed.tasks : [],
-        habits: Array.isArray(parsed && parsed.habits) ? parsed.habits : [],
-        notes: Array.isArray(parsed && parsed.notes) ? parsed.notes : [],
-        schedules: Array.isArray(parsed && parsed.schedules) ? parsed.schedules : [],
-        focusSessions: parsed && parsed.focusSessions && typeof parsed.focusSessions === 'object' ? parsed.focusSessions : {}
-      };
-    } catch (e) {
-      data = { tasks: [], habits: [], notes: [], schedules: [], focusSessions: {} };
-    }
+      const raw = localStorage.getItem(KEY) || localStorage.getItem('lifehub_v2');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          data.tasks = Array.isArray(parsed.tasks) ? parsed.tasks : [];
+          data.habits = Array.isArray(parsed.habits) ? parsed.habits : [];
+          data.notes = Array.isArray(parsed.notes) ? parsed.notes : [];
+          data.schedules = Array.isArray(parsed.schedules) ? parsed.schedules : [];
+          data.focusSessions = parsed.focusSessions && typeof parsed.focusSessions === 'object' ? parsed.focusSessions : {};
+        }
+      }
+    } catch (e) {}
 
     function persist() {
       try {
@@ -604,25 +606,27 @@
     function openTab(tab) {
       document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-      document.getElementById('btn-' + tab).classList.add('active');
+      const view = document.getElementById('tab-' + tab);
+      const btn = document.getElementById('btn-' + tab);
+      if (view) view.classList.add('active');
+      if (btn) btn.classList.add('active');
     }
 
-    // Calendar & Schedule
     function createSchedule() {
-      const date = calInput.value || todayISO;
-      const time = document.getElementById('schedTime').value || '09:00';
-      const titleInput = document.getElementById('schedTitle');
-      const title = titleInput.value.trim();
+      const date = (calInput && calInput.value) || todayISO;
+      const timeEl = document.getElementById('schedTime');
+      const titleEl = document.getElementById('schedTitle');
+      const time = (timeEl && timeEl.value) || '09:00';
+      const title = titleEl ? titleEl.value.trim() : '';
       if (!title) return;
       data.schedules.push({ id: Date.now(), date, time, title, done: false });
-      data.schedules.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-      titleInput.value = '';
+      data.schedules.sort((a, b) => String(a.date + a.time).localeCompare(String(b.date + b.time)));
+      if (titleEl) titleEl.value = '';
       persist();
     }
 
     function toggleSchedule(id) {
-      const item = data.schedules.find(s => s.id === id);
+      const item = data.schedules.find(s => s && s.id === id);
       if (item) {
         item.done = !item.done;
         persist();
@@ -630,22 +634,21 @@
     }
 
     function removeSchedule(id) {
-      data.schedules = data.schedules.filter(s => s.id !== id);
+      data.schedules = data.schedules.filter(s => s && s.id !== id);
       persist();
     }
 
-    // Tasks
     function createTask() {
       const input = document.getElementById('taskField');
-      const title = input.value.trim();
+      const title = input ? input.value.trim() : '';
       if (!title) return;
       data.tasks.unshift({ id: Date.now(), title, done: false });
-      input.value = '';
+      if (input) input.value = '';
       persist();
     }
 
     function editTask(id) {
-      const item = data.tasks.find(t => t.id === id);
+      const item = data.tasks.find(t => t && t.id === id);
       if (!item) return;
       const updated = prompt('Edit task:', item.title);
       if (updated === null) return;
@@ -656,7 +659,7 @@
     }
 
     function toggleTask(id) {
-      const item = data.tasks.find(t => t.id === id);
+      const item = data.tasks.find(t => t && t.id === id);
       if (item) {
         item.done = !item.done;
         persist();
@@ -664,11 +667,10 @@
     }
 
     function removeTask(id) {
-      data.tasks = data.tasks.filter(t => t.id !== id);
+      data.tasks = data.tasks.filter(t => t && t.id !== id);
       persist();
     }
 
-    // Habits
     function getStreak(dates) {
       const set = new Set(Array.isArray(dates) ? dates : []);
       let count = 0;
@@ -685,15 +687,15 @@
 
     function createHabit() {
       const input = document.getElementById('habitField');
-      const name = input.value.trim();
+      const name = input ? input.value.trim() : '';
       if (!name) return;
       data.habits.unshift({ id: Date.now(), name, dates: [] });
-      input.value = '';
+      if (input) input.value = '';
       persist();
     }
 
     function toggleHabit(id) {
-      const item = data.habits.find(h => h.id === id);
+      const item = data.habits.find(h => h && h.id === id);
       if (!item) return;
       const dates = Array.isArray(item.dates) ? item.dates : [];
       if (dates.includes(todayISO)) {
@@ -705,43 +707,41 @@
     }
 
     function removeHabit(id) {
-      data.habits = data.habits.filter(h => h.id !== id);
+      data.habits = data.habits.filter(h => h && h.id !== id);
       persist();
     }
 
-    // Notes
     function createNote() {
       const input = document.getElementById('noteField');
-      const body = input.value.trim();
+      const body = input ? input.value.trim() : '';
       if (!body) return;
       data.notes.unshift({
         id: Date.now(),
         body,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
-      input.value = '';
+      if (input) input.value = '';
       persist();
     }
 
     function removeNote(id) {
-      data.notes = data.notes.filter(n => n.id !== id);
+      data.notes = data.notes.filter(n => n && n.id !== id);
       persist();
     }
 
-    // Focus Timer
     let remainingSec = 25 * 60;
     let timerInterval = null;
 
     function formatTime(sec) {
       const m = String(Math.floor(sec / 60)).padStart(2, '0');
       const s = String(sec % 60).padStart(2, '0');
-      return `${m}:${s}`;
+      return m + ':' + s;
     }
 
     function updateTimerUI() {
-      document.getElementById('timerDisplay').textContent = formatTime(remainingSec);
-      document.getElementById('startPauseBtn').textContent = timerInterval ? 'Pause' : 'Start';
-      document.getElementById('focusCount').textContent = Number(data.focusSessions[todayISO] || 0);
+      setElText('timerDisplay', formatTime(remainingSec));
+      setElText('startPauseBtn', timerInterval ? 'Pause' : 'Start');
+      setElText('focusCount', Number(data.focusSessions[todayISO] || 0));
     }
 
     function changeFocusLength() {
@@ -749,10 +749,4 @@
         clearInterval(timerInterval);
         timerInterval = null;
       }
-      const mins = Number(document.getElementById('focusMinutes').value) || 25;
-      remainingSec = mins * 60;
-      document.getElementById('focusStatus').textContent = 'Ready to start';
-      updateTimerUI();
-    }
-
-    function tog
+      con
