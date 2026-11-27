@@ -210,6 +210,7 @@
       color: var(--text);
       border: 1px solid var(--border);
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .btn-sm.done {
@@ -240,6 +241,13 @@
       min-width: 0;
     }
 
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
     .checkbox {
       width: 18px;
       height: 18px;
@@ -258,7 +266,17 @@
       color: var(--muted);
     }
 
-    .del-btn {
+    .streak-tag {
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .small-btn {
       background: transparent;
       border: none;
       color: var(--muted);
@@ -266,6 +284,11 @@
       cursor: pointer;
       padding: 4px 6px;
       border-radius: 6px;
+    }
+
+    .small-btn:hover {
+      color: var(--text);
+      background: var(--surface-2);
     }
 
     .del-btn:hover {
@@ -479,6 +502,17 @@
       persist();
     }
 
+    function editTask(id) {
+      const item = data.tasks.find(t => t.id === id);
+      if (!item) return;
+      const updated = prompt('Edit task:', item.title);
+      if (updated === null) return;
+      const clean = updated.trim();
+      if (!clean) return;
+      item.title = clean;
+      persist();
+    }
+
     function toggleTask(id) {
       const item = data.tasks.find(t => t.id === id);
       if (item) {
@@ -490,6 +524,20 @@
     function removeTask(id) {
       data.tasks = data.tasks.filter(t => t.id !== id);
       persist();
+    }
+
+    function getStreak(dates) {
+      const set = new Set(Array.isArray(dates) ? dates : []);
+      let count = 0;
+      const cursor = new Date();
+      if (!set.has(cursor.toISOString().slice(0, 10))) {
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      while (set.has(cursor.toISOString().slice(0, 10))) {
+        count += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return count;
     }
 
     function createHabit() {
@@ -572,7 +620,10 @@
                 <input type="checkbox" class="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})" />
                 <span class="item-text ${t.done ? 'completed' : ''}">${esc(t.title)}</span>
               </div>
-              <button type="button" class="del-btn" onclick="removeTask(${t.id})">Delete</button>
+              <div class="row-actions">
+                <button type="button" class="small-btn" onclick="editTask(${t.id})">Edit</button>
+                <button type="button" class="small-btn del-btn" onclick="removeTask(${t.id})">Delete</button>
+              </div>
             </div>
           `).join('')
         : `<div class="empty-state">No tasks added yet.</div>`;
@@ -580,6 +631,7 @@
       document.getElementById('allHabits').innerHTML = data.habits.length
         ? data.habits.map(h => {
             const isDone = Array.isArray(h.dates) && h.dates.includes(todayISO);
+            const streak = getStreak(h.dates);
             return `
               <div class="list-row">
                 <div class="row-main">
@@ -587,8 +639,9 @@
                     ${isDone ? 'Done' : 'Complete'}
                   </button>
                   <span class="item-text">${esc(h.name)}</span>
+                  ${streak > 0 ? `<span class="streak-tag">${streak}d</span>` : ''}
                 </div>
-                <button type="button" class="del-btn" onclick="removeHabit(${h.id})">Delete</button>
+                <button type="button" class="small-btn del-btn" onclick="removeHabit(${h.id})">Delete</button>
               </div>
             `;
           }).join('')
@@ -599,7 +652,7 @@
             <div class="note-card">
               <div class="note-meta">
                 <span>${esc(n.time)}</span>
-                <button type="button" class="del-btn" onclick="removeNote(${n.id})">Delete</button>
+                <button type="button" class="small-btn del-btn" onclick="removeNote(${n.id})">Delete</button>
               </div>
               <div class="note-body">${esc(n.body)}</div>
             </div>
